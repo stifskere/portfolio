@@ -1,0 +1,16 @@
+services:
+  portfolio:
+    container_name: portfolio
+    build:
+      dockerfile: dev.dockerfile
+    volumes:
+      - ../:/home/dev/portfolio
+      - cargo-target:/home/dev/portfolio/target
+      - cargo-dist:/home/dev/portfolio/dist
+    ports:
+      - 8080:8080
+
+
+volumes:
+  cargo-target:
+  cargo-dist:
