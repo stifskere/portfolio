@@ -1,35 +1,26 @@
-html,
-body {
-  height: 100%;
+@use "sections/top.scss";
+
+* {
   margin: 0;
+  padding: 0;
 }
 
 body {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-
-  background: linear-gradient(to bottom right, #444444, #009a5b);
-  font-size: 1.5rem;
+  background-color: black;
 }
 
 main {
-  color: #fff6d5;
-  font-family: sans-serif;
-  text-align: center;
+  height: 100vh;
+
+  overflow-y: scroll;
+
+  scroll-snap-type: y mandatory;
 }
 
-.logo {
-  height: 20em;
-}
+.main-section {
+  height: 100vh;
 
-.heart:after {
-  content: "❤️";
+  overflow: hidden;
 
-  font-size: 1.75em;
-}
-
-h1 + .subtitle {
-  display: block;
-  margin-top: -1em;
+  scroll-snap-align: start;
 }
