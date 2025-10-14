@@ -39,7 +39,7 @@ pub fn top_section(props: &TopSectionProperties) -> Html {
         <section class="main-section top-section">
             <div class="top-section-titles">
                 <h1>{"MEMW"}</h1>
-                <h2>{"Systems Developer"}</h2>
+                <h2>{"Full Stack Developer"}</h2>
             </div>
             if *show_chevron {
                 <Icon

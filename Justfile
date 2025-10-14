@@ -20,3 +20,14 @@ set dotenv-load
 		docker compose -f ./docker/dev.docker-compose.yml up --no-deps --build;
 	fi
 
+@migrate:
+	#!/bin/bash
+	set -e;
+
+	rm -f migrations/.__schema.sql;
+	cat migrations/*.sql > migrations/.__schema.sql;
+	atlas schema apply \
+		--to file://migrations/.__schema.sql \
+		-u "postgres://portfolio:portfolio@127.0.0.1/portfolio?sslmode=disable" \
+		--dev-url "docker://postgres/18/diffs";
+	rm migrations/.__schema.sql;

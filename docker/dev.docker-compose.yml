@@ -3,14 +3,31 @@ services:
     container_name: portfolio
     build:
       dockerfile: dev.dockerfile
-    volumes:
-      - ../:/home/dev/portfolio
-      - cargo-target:/home/dev/portfolio/target
-      - cargo-dist:/home/dev/portfolio/dist
+    environment:
+      DATABASE_URL: postgres://portfolio:portfolio@portfolio-database:5432/portfolio
     ports:
       - 8080:8080
+    volumes:
+      - ../:/home/dev/portfolio
+      - portfolio-cargo-target:/home/dev/portfolio/target
+      - portfolio-cargo-dist:/home/dev/portfolio/dist
+    depends_on:
+      - portfolio-database
 
+  portfolio-database:
+    container_name: portfolio_database
+    image: postgres:18
+    environment:
+      POSTGRES_USER: portfolio
+      POSTGRES_PASSWORD: portfolio
+      POSTGRES_DB: portfolio
+      PGDATA: /data/postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - portfolio-database:/data/postgres
 
 volumes:
-  cargo-target:
-  cargo-dist:
+  portfolio-cargo-target:
+  portfolio-cargo-dist:
+  portfolio-database:

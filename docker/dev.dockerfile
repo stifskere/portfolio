@@ -7,7 +7,10 @@ RUN cargo binstall -y --locked \
 
 FROM rust:1.89-bookworm
 
+ARG DATABASE_URL
+
 ENV DEBIAN_FRONTEND=nointeractive
+ENV DATABASE_URL=${DATABASE_URL}
 
 RUN useradd -m dev
 WORKDIR /home/dev/portfolio

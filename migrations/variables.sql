@@ -1,0 +1,6 @@
+
+CREATE TABLE IF NOT EXISTS variables(
+	id SERIAL NOT NULL,
+	var_key VARCHAR(100) NOT NULL,
+	var_val BYTEA NOT NULL
+);
