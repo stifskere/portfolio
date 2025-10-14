@@ -6,6 +6,8 @@ use thiserror::Error;
 use tracing_actix_web::TracingLogger;
 use tracing_subscriber::{fmt, EnvFilter};
 
+use crate::routes::reviews::reviews_scope;
+
 
 mod models;
 mod routes;
@@ -28,6 +30,7 @@ async fn main() -> Result<(), AppError> {
     HttpServer::new(|| {
         App::new()
             .wrap(TracingLogger::default())
+            .service(reviews_scope())
     })
         .bind("0.0.0.0:8081")?
         .run()

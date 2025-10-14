@@ -7,7 +7,14 @@ use crate::db;
 use crate::models::{ModelError, ModelResult};
 
 #[derive(Serialize, Deserialize)]
-pub struct Reviews {
+pub struct PartialReview {
+    submited_name: String,
+    submited_rating: i32,
+    submited_comment: String
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Review {
     id: i32,
     link_uuid: String,
     can_edit: bool,
@@ -17,7 +24,26 @@ pub struct Reviews {
     created_at: NaiveDateTime
 }
 
-impl Reviews {
+#[allow(dead_code)]
+impl PartialReview {
+    #[inline]
+    pub fn submited_name(&self) -> &str {
+        &self.submited_name
+    }
+
+    #[inline]
+    pub fn submited_rating(&self) -> i32 {
+        self.submited_rating
+    }
+
+    #[inline]
+    pub fn submited_comment(&self) -> &str {
+        &self.submited_comment
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+impl Review {
     pub async fn new_request() -> ModelResult<Uuid> {
         let uuid = Uuid::new_v4();
 
@@ -33,6 +59,15 @@ impl Reviews {
             .await?;
 
         Ok(uuid)
+    }
+
+
+    pub async fn get_all_reviews() -> ModelResult<Vec<Self>> {
+        Ok(
+            query_as!(Self, r"SELECT * FROM reviews")
+                .fetch_all(db!()?)
+                .await?
+        )
     }
 
     pub async fn get_review(uuid: Uuid) -> ModelResult<Option<Self>> {
@@ -76,8 +111,8 @@ impl Reviews {
         Ok(())
     }
 
-    pub async fn submit_review(&mut self, name: String, rating: i32, comment: String) -> ModelResult<()> {
-        if rating < 0 || rating > 5 {
+    pub async fn submit_review(&mut self, partial: PartialReview) -> ModelResult<()> {
+        if partial.submited_rating() < 0 || partial.submited_rating() > 5 {
             return Err(ModelError::Other("Rating must be between 0 to 5.".into()))
         }
 
@@ -95,13 +130,60 @@ impl Reviews {
                 RETURNING *
             ",
             self.link_uuid,
-            name,
-            rating,
-            comment
+            partial.submited_name(),
+            partial.submited_rating(),
+            partial.submited_comment()
         )
             .fetch_one(db!()?)
             .await?;
 
         Ok(())
     }
+
+    pub async fn delete_review(self) -> ModelResult<()> {
+        query!(r"DELETE FROM reviews WHERE link_uuid = $1", self.link_uuid)
+            .execute(db!()?)
+            .await?;
+
+        Ok(())
+    }
+}
+
+#[allow(dead_code)]
+impl Review {
+    #[inline]
+    pub fn id(&self) -> i32 {
+        self.id
+    }
+
+    #[inline]
+    pub fn link_uuid(&self) -> &str {
+        &self.link_uuid
+    }
+
+    #[inline]
+    pub fn can_edit(&self) -> bool {
+        self.can_edit
+    }
+
+    #[inline]
+    pub fn submited_name(&self) -> Option<&String> {
+        self.submited_name.as_ref()
+    }
+
+    #[inline]
+    pub fn submited_rating(&self) -> Option<i32> {
+        self.submited_rating
+    }
+
+    #[inline]
+    pub fn submited_comment(&self) -> Option<&String> {
+        self.submited_comment.as_ref()
+    }
+
+    #[inline]
+    pub fn created_at(&self) -> NaiveDateTime {
+        self.created_at
+    }
+
 }

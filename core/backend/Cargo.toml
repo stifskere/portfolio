@@ -6,6 +6,8 @@ edition = "2024"
 [dependencies]
 actix-web = "4.11.0"
 actix_failwrap = "1.0.3"
+base64 = "0.22.1"
+bcrypt = "0.17.1"
 chrono = { version = "0.4.42", features = ["serde"] }
 dotenvy = "0.15.7"
 log = "0.4.28"
@@ -16,7 +18,7 @@ thiserror = "2.0.17"
 tracing = "0.1.41"
 tracing-actix-web = "0.7.19"
 tracing-subscriber = { version = "0.3.20", features = ["fmt", "env-filter"] }
-uuid = { version = "1.18.1", features = ["v4"] }
+uuid = { version = "1.18.1", features = ["serde", "v4"] }
 
 [build-dependencies]
 dotenvy = "0.15.7"
