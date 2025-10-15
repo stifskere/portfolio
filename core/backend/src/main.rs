@@ -30,7 +30,7 @@ async fn main() -> Result<(), AppError> {
     HttpServer::new(|| {
         App::new()
             .wrap(TracingLogger::default())
-            .service(reviews_scope())
+//            .service(reviews_scope()) // This may be enabled in a future.
     })
         .bind("0.0.0.0:8081")?
         .run()

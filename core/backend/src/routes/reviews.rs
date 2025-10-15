@@ -24,6 +24,7 @@ enum ReviewRouteError {
     InvalidId(String),
 }
 
+#[expect(unused)]
 pub fn reviews_scope() -> Scope {
     scope("/reviews")
         .service(get_all_reviews)
