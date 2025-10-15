@@ -6,15 +6,16 @@ use uuid::Uuid;
 use crate::db;
 use crate::models::{ModelError, ModelResult};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct PartialReview {
     submited_name: String,
     submited_rating: i32,
     submited_comment: String
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 pub struct Review {
+    #[serde(skip_serializing)]
     id: i32,
     link_uuid: String,
     can_edit: bool,
