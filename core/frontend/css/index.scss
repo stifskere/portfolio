@@ -1,4 +1,10 @@
+@use "imports.scss";
+
+@use "components/text_scroller.scss";
+@use "components/presentation_link.scss";
+
 @use "sections/top.scss";
+@use "sections/presentation.scss";
 
 * {
   margin: 0;
@@ -15,6 +21,12 @@ main {
   overflow-y: scroll;
 
   scroll-snap-type: y mandatory;
+}
+
+::selection, ::-moz-selection {
+  background: white;
+  color: black;
+  text-shadow: none;
 }
 
 .main-section {

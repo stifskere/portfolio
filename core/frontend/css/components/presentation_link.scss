@@ -1,0 +1,55 @@
+
+@keyframes presentation-link-desc-slide {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.presentation-link {
+  display: flex;
+
+  height: 70px;
+
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+
+  padding: 0 20px;
+
+  transition: color 0.2s, background-color 0.2s;
+
+  cursor: pointer;
+
+  color: white;
+
+  & > * {
+    transition: text-shadow 0.2s;
+
+    text-shadow:
+        0 0 7px #fff,
+        0 0 102px #fff;
+  }
+
+  &:hover > * {
+    text-shadow:
+        0 0 7px #fff,
+        0 0 30px #fff;
+  }
+
+  & > div {
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+
+    & > p {
+      font-size: 20px;
+      font-family: "BBH Sans Bartle", sans-serif;
+    }
+
+    & > span {
+      font-size: 13px;
+      font-family: "Roboto", sans-serif;
+
+      display: inline-block;
+    }
+  }
+}
