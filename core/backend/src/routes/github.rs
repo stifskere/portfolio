@@ -44,7 +44,7 @@ pub fn github_scope() -> Scope {
 
 #[proof_route("GET /repositories")]
 async fn get_repositories(octocrab: Data<Arc<Octocrab>>) -> Result<HttpResponse, GithubRouteError> {
-    let github_username = Variable::get_variable::<String>("GITHUB_USERNAME".to_string())
+    let github_username = Variable::fetch::<String>("GITHUB_USERNAME")
         .await?
         .ok_or(GithubRouteError::MissingUsername)?;
 

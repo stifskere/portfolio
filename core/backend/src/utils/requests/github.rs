@@ -6,6 +6,9 @@ use octocrab::{Error as GithubError, Octocrab};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+// TODO: I need to make a common structure and process some extra information such as
+// the fork parent repository.
+
 const CACHE_EXPIRATION: u64 = 3600 * 3;
 static REPOSITORY_CACHE: Mutex<OnceLock<RepositoryCache>> = Mutex::new(OnceLock::new());
 

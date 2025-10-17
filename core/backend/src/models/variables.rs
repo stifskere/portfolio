@@ -20,25 +20,51 @@ pub struct Variable {
 
 #[cfg(not(target_arch = "wasm32"))]
 impl Variable {
-    pub async fn store_variable<T: Encode>(key: String, value: T) -> ModelResult<()> {
-        query!(
+    // Returns the number of rows affected.
+    async fn query_store<T: Encode>(key: &str, value: T, statement: &str) -> ModelResult<u64> {
+        let affected_rows = query(statement)
+            .bind(key)
+            .bind(
+                encode_to_vec(value, standard_config())
+                    .map_err(|error| ModelError::Other(error.to_string()))?
+            )
+            .execute(db!()?)
+            .await?
+            .rows_affected();
+
+        Ok(affected_rows)
+    }
+
+    pub async fn store_or_ignore<T: Encode>(key: &str, value: T) -> ModelResult<bool> {
+        Self::query_store(
+            key,
+            value,
+            r"
+                INSERT INTO variables (var_key, var_val)
+                VALUES ($1, $2)
+                ON CONFLICT DO NOTHING
+            "
+        )
+            .await
+            .map(|result| result > 0)
+    }
+
+    pub async fn store_or_update<T: Encode>(key: &str, value: T) -> ModelResult<()> {
+        Self::query_store(
+            key,
+            value,
             r"
                 INSERT INTO variables (var_key, var_val)
                 VALUES ($1, $2)
                 ON CONFLICT (var_key) DO UPDATE
                     SET var_val = $2
-            ",
-            key,
-            encode_to_vec(value, standard_config())
-                .map_err(|error| ModelError::Other(error.to_string()))?
+            "
         )
-            .execute(db!()?)
-            .await?;
-
-        Ok(())
+            .await
+            .map(|_| ())
     }
 
-    pub async fn get_variable<T: Decode<()>>(key: String) -> ModelResult<Option<T>> {
+    pub async fn fetch<T: Decode<()>>(key: &str) -> ModelResult<Option<T>> {
         Ok(
             query_as!(
                 Self,

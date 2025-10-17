@@ -10,18 +10,23 @@ use thiserror::Error;
 use tracing_actix_web::TracingLogger;
 use tracing_subscriber::{fmt, EnvFilter};
 
+use crate::models::ModelError;
 use crate::routes::variables::variables_scope;
 use crate::routes::github::github_scope;
-
+use crate::utils::database::variables::setup_variables;
 
 mod models;
 mod routes;
 mod utils;
 
+
 #[derive(Error, Debug)]
 pub enum AppError {
     #[error("Error starting the HTTP server: {0:#}")]
-    Server(#[from] IoError)
+    Server(#[from] IoError),
+
+    #[error("Error while setting up a database state: {0:#}")]
+    Database(#[from] ModelError)
 }
 
 #[main]
@@ -31,6 +36,9 @@ async fn main() -> Result<(), AppError> {
     fmt()
         .with_env_filter(EnvFilter::from_default_env())
         .init();
+
+    setup_variables()
+        .await?;
 
     HttpServer::new(|| {
         let cors = Cors::default()
