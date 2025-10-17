@@ -9,6 +9,12 @@
 * {
   margin: 0;
   padding: 0;
+
+  cursor: url("/assets/cursor.cur"), default !important;
+}
+
+svg, svg > * {
+  cursor: url("/assets/cursor.cur"), default !important;
 }
 
 body {
@@ -22,6 +28,7 @@ main {
 
   scroll-snap-type: y mandatory;
 }
+
 
 ::selection, ::-moz-selection {
   background: white;
