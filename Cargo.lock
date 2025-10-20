@@ -482,6 +482,7 @@ dependencies = [
  "tracing-actix-web",
  "tracing-subscriber",
  "uuid",
+ "yew_icons",
 ]
 
 [[package]]

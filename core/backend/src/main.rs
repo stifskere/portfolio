@@ -57,7 +57,6 @@ async fn main() -> Result<(), AppError> {
             .wrap(TracingLogger::default())
             .service(variables_scope())
             .service(github_scope())
-//            .service(reviews_scope()) // This may be enabled in a future.
     })
         .bind("0.0.0.0:8081")?
         .run()

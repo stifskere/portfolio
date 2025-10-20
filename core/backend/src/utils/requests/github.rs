@@ -33,7 +33,8 @@ pub struct AppRepository {
     url: String,
     star_count: String,
     language: String,
-    fork_count: String
+    fork_count: String,
+    forked_from: Option<Box<AppRepository>>
 }
 
 impl RepositoryCache {

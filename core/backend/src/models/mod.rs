@@ -3,8 +3,8 @@ use sqlx::Error as SqlxError;
 
 use crate::utils::database::connection::Error as ConnectionError;
 
-pub mod reviews;
 pub mod variables;
+pub mod socials;
 
 #[derive(Error, Debug)]
 pub enum ModelError {
