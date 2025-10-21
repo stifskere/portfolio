@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
-use yew_icons::IconId;
 use sqlx::{query, query_as};
 
-use crate::{db, models::{ModelError, ModelResult}};
+use crate::db;
+use crate::models::ModelResult;
 
 #[derive(Deserialize)]
 pub struct PartialSocial {

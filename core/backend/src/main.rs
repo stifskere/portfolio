@@ -11,9 +11,9 @@ use tracing_actix_web::TracingLogger;
 use tracing_subscriber::{fmt, EnvFilter};
 
 use crate::models::ModelError;
-use crate::routes::variables::variables_scope;
+use crate::routes::settings::settings_scope;
 use crate::routes::github::github_scope;
-use crate::utils::database::variables::setup_variables;
+use crate::utils::database::settings::setup_settings;
 
 mod models;
 mod routes;
@@ -37,7 +37,7 @@ async fn main() -> Result<(), AppError> {
         .with_env_filter(EnvFilter::from_default_env())
         .init();
 
-    setup_variables()
+    setup_settings()
         .await?;
 
     HttpServer::new(|| {
@@ -55,7 +55,7 @@ async fn main() -> Result<(), AppError> {
             .app_data(octocrab_instance.clone())
             .wrap(cors)
             .wrap(TracingLogger::default())
-            .service(variables_scope())
+            .service(settings_scope())
             .service(github_scope())
     })
         .bind("0.0.0.0:8081")?

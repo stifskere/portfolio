@@ -10,7 +10,7 @@ use crate::db;
 
 
 #[derive(Serialize, Deserialize)]
-pub struct Variable {
+pub struct Setting {
     #[serde(skip_serializing, skip_deserializing)]
     #[expect(dead_code)]
     id: i32,
@@ -19,7 +19,7 @@ pub struct Variable {
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-impl Variable {
+impl Setting {
     // Returns the number of rows affected.
     async fn query_store<T: Encode>(key: &str, value: T, statement: &str) -> ModelResult<u64> {
         let affected_rows = query(statement)
@@ -40,7 +40,7 @@ impl Variable {
             key,
             value,
             r"
-                INSERT INTO variables (var_key, var_val)
+                INSERT INTO settings (var_key, var_val)
                 VALUES ($1, $2)
                 ON CONFLICT DO NOTHING
             "
@@ -70,7 +70,7 @@ impl Variable {
                 Self,
                 r"
                     SELECT *
-                    FROM variables
+                    FROM settings
                     WHERE var_key = $1
                 ",
                 key

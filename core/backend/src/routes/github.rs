@@ -8,7 +8,7 @@ use thiserror::Error;
 use crate::utils::requests::github::{fetch_repositories, GithubRequestError};
 use crate::utils::requests::error_transformer::json_transformer;
 use crate::models::ModelError;
-use crate::models::variables::Variable;
+use crate::models::setting::Setting;
 
 #[derive(ErrorResponse, Error, Debug)]
 #[transform_response(json_transformer)]
@@ -44,7 +44,7 @@ pub fn github_scope() -> Scope {
 
 #[proof_route("GET /repositories")]
 async fn get_repositories(octocrab: Data<Arc<Octocrab>>) -> Result<HttpResponse, GithubRouteError> {
-    let github_username = Variable::fetch::<String>("GITHUB_USERNAME")
+    let github_username = Setting::fetch::<String>("GITHUB_USERNAME")
         .await?
         .ok_or(GithubRouteError::MissingUsername)?;
 

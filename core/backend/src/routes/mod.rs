@@ -1,4 +1,4 @@
 #![cfg(not(target_arch = "wasm32"))]
 
 pub mod github;
-pub mod variables;
+pub mod settings;

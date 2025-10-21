@@ -5,14 +5,14 @@ use actix_web::{HttpResponse, Scope};
 use actix_web::web::{scope, Bytes};
 use thiserror::Error;
 
-use crate::models::variables::Variable;
+use crate::models::setting::Setting;
 use crate::models::ModelError;
 use crate::utils::requests::authentication::OptionalAuth;
 use crate::utils::requests::error_transformer::json_transformer;
 
 #[derive(ErrorResponse, Error, Debug)]
 #[transform_response(json_transformer)]
-enum VariablesRouteError {
+enum SettingRouteError {
     #[error("Method Not Allowed.")]
     #[status_code(405)]
     NotAuthenticated,
@@ -29,8 +29,8 @@ enum VariablesRouteError {
     InvalidString(#[from] FromUtf8Error)
 }
 
-pub fn variables_scope() -> Scope {
-    scope("/variables")
+pub fn settings_scope() -> Scope {
+    scope("/setting")
         .service(get_presentation)
         .service(set_presentation)
         .service(get_moto)
@@ -38,10 +38,10 @@ pub fn variables_scope() -> Scope {
 }
 
 #[proof_route("GET /presentation")]
-async fn get_presentation() -> Result<HttpResponse, VariablesRouteError> {
-    let presentation = Variable::fetch::<String>("PORTFOLIO_PRESENTATION")
+async fn get_presentation() -> Result<HttpResponse, SettingRouteError> {
+    let presentation = Setting::fetch::<String>("PORTFOLIO_PRESENTATION")
         .await?
-        .ok_or(VariablesRouteError::NotConfigured)?;
+        .ok_or(SettingRouteError::NotConfigured)?;
 
     Ok(
         HttpResponse::Ok()
@@ -50,12 +50,12 @@ async fn get_presentation() -> Result<HttpResponse, VariablesRouteError> {
 }
 
 #[proof_route("PUT /presentation")]
-async fn set_presentation(auth: OptionalAuth, value: Bytes) -> Result<HttpResponse, VariablesRouteError> {
+async fn set_presentation(auth: OptionalAuth, value: Bytes) -> Result<HttpResponse, SettingRouteError> {
     if !auth.is_authorized() {
-        return Err(VariablesRouteError::NotAuthenticated);
+        return Err(SettingRouteError::NotAuthenticated);
     }
 
-    Variable::store_or_update(
+    Setting::store_or_update(
         "PORTFOLIO_PRESENTATION",
         String::from_utf8(value.to_vec())?
     )
@@ -68,10 +68,10 @@ async fn set_presentation(auth: OptionalAuth, value: Bytes) -> Result<HttpRespon
 }
 
 #[proof_route("GET /moto")]
-async fn get_moto() -> Result<HttpResponse, VariablesRouteError> {
-    let moto = Variable::fetch::<String>("PORTFOLIO_MOTO")
+async fn get_moto() -> Result<HttpResponse, SettingRouteError> {
+    let moto = Setting::fetch::<String>("PORTFOLIO_MOTO")
         .await?
-        .ok_or(VariablesRouteError::NotConfigured)?;
+        .ok_or(SettingRouteError::NotConfigured)?;
 
     Ok(
         HttpResponse::Ok()
@@ -80,12 +80,12 @@ async fn get_moto() -> Result<HttpResponse, VariablesRouteError> {
 }
 
 #[proof_route("PUT /moto")]
-async fn set_moto(auth: OptionalAuth, value: Bytes) -> Result<HttpResponse, VariablesRouteError> {
+async fn set_moto(auth: OptionalAuth, value: Bytes) -> Result<HttpResponse, SettingRouteError> {
     if !auth.is_authorized() {
-        return Err(VariablesRouteError::NotAuthenticated);
+        return Err(SettingRouteError::NotAuthenticated);
     }
 
-    Variable::store_or_update(
+    Setting::store_or_update(
         "PORTFOLIO_MOTO",
         String::from_utf8(value.to_vec())?
     )

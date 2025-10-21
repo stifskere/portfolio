@@ -1,10 +1,10 @@
 use std::env::vars;
 
 use crate::models::ModelResult;
-use crate::models::variables::Variable;
+use crate::models::setting::Setting;
 
 
-pub async fn setup_variables() -> ModelResult<()> {
+pub async fn setup_settings() -> ModelResult<()> {
     for (key, value) in vars() {
         if !key.starts_with("PORTFOLIO_VARIABLE_") {
             continue;
@@ -12,7 +12,7 @@ pub async fn setup_variables() -> ModelResult<()> {
 
         let key = key.trim_start_matches("PORTFOLIO_VARIABLE_");
 
-        let updated = Variable::store_or_ignore(
+        let updated = Setting::store_or_ignore(
             &key,
             &value
         )
