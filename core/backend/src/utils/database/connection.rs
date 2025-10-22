@@ -1,16 +1,12 @@
-use std::{env::VarError, sync::OnceLock};
+use std::sync::OnceLock;
+use std::env::VarError;
 use std::env::var;
 
-use sqlx::{postgres::PgPoolOptions, PgPool, Error as SqlxError};
+use sqlx::{PgPool, Error as SqlxError};
+use sqlx::postgres::PgPoolOptions;
 use thiserror::Error;
 
-#[macro_export]
-macro_rules! db {
-    () => {
-        $crate::utils::database::connection::get_connection().await
-    };
-}
-
+/// Holds any errors related to database connection.
 #[derive(Error, Debug)]
 pub enum Error {
     #[error("Couldn't find DATABASE_URL environment variable.")]
@@ -20,9 +16,13 @@ pub enum Error {
     Connection(#[from] SqlxError)
 }
 
-static CONNECTION: OnceLock<PgPool> = OnceLock::new();
+/// This function obtains a postgres connection
+/// from storage or stores a new one, since this
+/// is a small project this behavior is inherited
+/// from older projects of mine.
+pub async fn connect() -> Result<&'static PgPool, Error> {
+    static CONNECTION: OnceLock<PgPool> = OnceLock::new();
 
-pub async fn get_connection() -> Result<&'static PgPool, Error> {
     if let Some(connection) = CONNECTION.get() {
         return Ok(connection);
     }

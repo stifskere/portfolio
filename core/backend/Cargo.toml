@@ -12,6 +12,7 @@ bcrypt = "0.17.1"
 bincode = { version = "2.0.1", features = ["serde"] }
 chrono = { version = "0.4.42", features = ["serde"] }
 dotenvy = "0.15.7"
+email_address = "0.2.9"
 envconfig = "0.11.0"
 log = "0.4.28"
 octocrab = "0.47.0"
