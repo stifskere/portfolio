@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
 // use sqlx::PgPool;
-use envconfig::{Envconfig, Error as EnvconfigError};
+use envconfig::Envconfig;
 use octocrab::{instance as octocrab_instance, Octocrab};
 use thiserror::Error;
 
-use crate::utils::application::environment::PortfolioEnvironment;
+use crate::utils::application::environment::{EnvironmentValidationError, PortfolioEnvironment};
 
 
 /// Holds any error that may happen during an interaction with
@@ -13,7 +13,7 @@ use crate::utils::application::environment::PortfolioEnvironment;
 #[derive(Error, Debug)]
 pub enum AppContextError {
     #[error("Error while loading an environment variable, {0:#}")]
-    Envconfig(#[from] EnvconfigError)
+    Envconfig(#[from] EnvironmentValidationError)
 }
 
 /// This struct holds data that should be
@@ -32,7 +32,7 @@ impl AppContext {
     /// registered as `Data`.
     pub fn load() -> Result<Self, AppContextError> {
         Ok(Self {
-            environment: PortfolioEnvironment::init_from_env()?,
+            environment: PortfolioEnvironment::load_validated()?,
             octocrab: octocrab_instance()
         })
     }
