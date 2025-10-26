@@ -1,8 +1,12 @@
 use serde::{Deserialize, Serialize};
-use sqlx::{query, query_as};
+use sqlx::{query, query_as, Error as QueryError, PgPool};
+use thiserror::Error;
 
-use crate::db;
-use crate::models::ModelResult;
+#[derive(Error, Debug)]
+pub enum SocialModelError {
+    #[error("Error while querying the database, {0:#}")]
+    Query(#[from] QueryError)
+}
 
 #[derive(Deserialize)]
 pub struct PartialSocial {
@@ -24,10 +28,13 @@ pub struct Social {
     ui_order: i32
 }
 
-
+#[cfg(not(target_arch = "wasm32"))]
 impl Social {
     // returns Some if inserted otherwise None.
-    pub async fn add(social: PartialSocial) -> ModelResult<Option<Self>> {
+    pub async fn add(
+        pool: &PgPool,
+        social: PartialSocial
+    ) -> Result<Option<Self>, SocialModelError> {
         let result = query_as!(
             Self,
             r"
@@ -69,14 +76,18 @@ impl Social {
             social.target,
             social.ui_order
         )
-            .fetch_optional(db!()?)
+            .fetch_optional(pool)
             .await?;
 
         Ok(result)
     }
 
     // returns Some if updated otherwise None.
-    pub async fn edit(id: i32, social: PartialSocial) -> ModelResult<Option<Self>> {
+    pub async fn edit(
+        pool: &PgPool,
+        id: i32,
+        social: PartialSocial
+    ) -> Result<Option<Self>, SocialModelError> {
         let result = query_as!(
             Self,
             r"
@@ -98,22 +109,22 @@ impl Social {
             social.target,
             social.ui_order
         )
-            .fetch_optional(db!()?)
+            .fetch_optional(pool)
             .await?;
 
         Ok(result)
     }
 
     // returns true if deleted otherwise false.
-    pub async fn delete(id: i32) -> ModelResult<bool> {
+    pub async fn delete(self, pool: &PgPool) -> Result<bool, SocialModelError> {
         let result = query!(
             r"
                 DELETE FROM socials
                 WHERE id = $1
             ",
-            id
+            self.id
         )
-            .execute(db!()?)
+            .execute(pool)
             .await?;
 
         Ok(result.rows_affected() > 0)

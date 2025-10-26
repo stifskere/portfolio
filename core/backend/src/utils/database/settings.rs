@@ -1,6 +1,5 @@
 use std::env::vars;
 
-use crate::models::ModelResult;
 use crate::models::setting::Setting;
 
 

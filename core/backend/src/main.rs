@@ -1,3 +1,5 @@
+#![cfg_attr(target_arch = "wasm32", allow(unused))]
+
 use std::io::Error as IoError;
 
 use actix_cors::Cors;
@@ -9,7 +11,6 @@ use thiserror::Error;
 use tracing_actix_web::TracingLogger;
 use tracing_subscriber::{fmt, EnvFilter};
 
-use crate::models::ModelError;
 use crate::routes::settings::settings_scope;
 use crate::routes::github::github_scope;
 use crate::utils::application::context::{AppContext, AppContextError};
@@ -29,26 +30,29 @@ pub enum AppError {
     #[error("Error starting the HTTP server, {0:#}")]
     Server(#[from] IoError),
 
-    #[error("Error while setting up a database state, {0:#}")]
-    Database(#[from] ModelError),
-
     #[error("Error loading the application context, {0:#}")]
     Context(#[from] AppContextError)
 }
 
 #[main]
 async fn main() -> Result<(), AppError> {
+    // Load the runtime environment variables.
     dotenv().ok();
 
+    // Create and register a logger.
     fmt()
         .with_env_filter(EnvFilter::from_default_env())
         .init();
 
+    // Setup the dynamic settings trough environment variables.
     setup_settings()
         .await?;
 
-    let app_context = Data::new(AppContext::load()?);
+    // Create an app context that connects to
+    // other services, holds aplication settings...
+    let app_context = Data::new(AppContext::load().await?);
 
+    // Instantiate a new HTTP server.
     HttpServer::new(move || {
         App::new()
             .app_data(app_context.clone())
