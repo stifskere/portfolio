@@ -1,17 +1,15 @@
-use std::sync::OnceLock;
-use std::env::VarError;
-use std::env::var;
-
 use sqlx::{PgPool, Error as SqlxError};
 use sqlx::postgres::PgPoolOptions;
 use thiserror::Error;
 
+
+/// NOTE: This is a single responsability module
+/// that may seem redundant, but it's built like this
+/// to not change the layout and for future proofing.
+
 /// Holds any errors related to database connection.
 #[derive(Error, Debug)]
-pub enum Error {
-    #[error("Couldn't find DATABASE_URL environment variable.")]
-    MissingEnvironment(#[from] VarError),
-
+pub enum DatabaseConnectionError {
     #[error("Couldn't perform connection to the database.")]
     Connection(#[from] SqlxError)
 }
@@ -20,17 +18,11 @@ pub enum Error {
 /// from storage or stores a new one, since this
 /// is a small project this behavior is inherited
 /// from older projects of mine.
-pub async fn connect() -> Result<&'static PgPool, Error> {
-    static CONNECTION: OnceLock<PgPool> = OnceLock::new();
-
-    if let Some(connection) = CONNECTION.get() {
-        return Ok(connection);
-    }
-
-    let connection = PgPoolOptions::new()
-        .max_connections(5)
-        .connect(&var("DATABASE_URL")?)
-        .await?;
-
-    Ok(CONNECTION.get_or_init(|| connection))
+pub async fn database_connection(url: &str) -> Result<PgPool, DatabaseConnectionError> {
+    Ok(
+        PgPoolOptions::new()
+            .max_connections(5)
+            .connect(url)
+            .await?
+    )
 }

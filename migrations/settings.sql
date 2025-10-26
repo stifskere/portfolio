@@ -1,6 +1,7 @@
 
 CREATE TABLE IF NOT EXISTS settings(
 	id SERIAL NOT NULL,
+	requires_auth BOOLEAN NOT NULL DEFAULT false,
 	var_key VARCHAR(100) NOT NULL UNIQUE,
 	var_val BYTEA NOT NULL
 );

@@ -1,5 +1,8 @@
+use std::str::FromStr;
+
 use email_address::EmailAddress;
 use envconfig::{Envconfig, Error as EnvconfigError};
+use sqlx::postgres::PgConnectOptions;
 use thiserror::Error;
 
 // NOTE: PE stands for portfolio environment.
@@ -15,7 +18,10 @@ pub enum EnvironmentValidationError {
     Envconfig(#[from] EnvconfigError),
 
     #[error("PE_ADMIN_EMAIL contains an invalid email address.")]
-    InvalidEmail
+    InvalidEmail,
+
+    #[error("DATABASE_URL doesn't contain a valid postgresql database url.")]
+    InvalidPostgresUrl
 }
 
 /// This struct holds the relevant
@@ -25,7 +31,10 @@ pub struct PortfolioEnvironment {
     #[envconfig(from = "PE_ADMIN_EMAIL")]
     admin_email: String,
     #[envconfig(from = "PE_ADMIN_PASSWORD")]
-    admin_password: String
+    admin_password: String,
+
+    #[envconfig(from = "DATABASE_URL")]
+    database_url: String
 }
 
 impl PortfolioEnvironment {
@@ -34,7 +43,14 @@ impl PortfolioEnvironment {
 
         if !EmailAddress::is_valid(instance.admin_email()) {
             log::error!("The PE_ADMIN_EMAIL is not a valid email address.");
-            
+            return Err(EnvironmentValidationError::InvalidEmail);
+        }
+
+        if PgConnectOptions::from_str(instance.database_url()).is_err() {
+            log::error!(
+                "The DATABASE_URL doesn't contain a valid postgresql connection url."
+            );
+            return Err(EnvironmentValidationError::InvalidPostgresUrl);
         }
 
         Ok(instance)
@@ -53,5 +69,10 @@ impl PortfolioEnvironment {
     #[inline]
     pub fn admin_password(&self) -> &str {
         &self.admin_password
+    }
+
+    /// The application postgresql URL.
+    pub fn database_url(&self) -> &str {
+        &self.database_url
     }
 }

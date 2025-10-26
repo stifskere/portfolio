@@ -1,12 +1,11 @@
-use std::string::FromUtf8Error;
-
 use actix_failwrap::{proof_route, ErrorResponse};
 use actix_web::{HttpResponse, Scope};
-use actix_web::web::{scope, Bytes};
+use actix_web::web::{scope, Bytes, Data, Path, Query};
+use serde::Deserialize;
 use thiserror::Error;
 
-use crate::models::setting::Setting;
-use crate::models::ModelError;
+use crate::models::setting::{Setting, SettingModelError};
+use crate::utils::application::context::AppContext;
 use crate::utils::requests::authentication::OptionalAuth;
 use crate::utils::requests::error_transformer::json_transformer;
 
@@ -21,79 +20,85 @@ enum SettingRouteError {
     #[status_code(404)]
     NotConfigured,
 
-    #[error("Error while querying the database: {0:#}")]
-    Model(#[from] ModelError),
-
-    #[error("The value sent is invalid.")]
-    #[status_code(400)]
-    InvalidString(#[from] FromUtf8Error)
+    #[error("Error while retrieving settings, {0:#}")]
+    Model(#[from] SettingModelError)
 }
 
 pub fn settings_scope() -> Scope {
     scope("/setting")
-        .service(get_presentation)
-        .service(set_presentation)
-        .service(get_moto)
-        .service(set_moto)
+        .service(get_setting)
+        .service(post_setting)
 }
 
-#[proof_route("GET /presentation")]
-async fn get_presentation() -> Result<HttpResponse, SettingRouteError> {
-    let presentation = Setting::fetch::<String>("PORTFOLIO_PRESENTATION")
+#[derive(Deserialize)]
+struct SettingPathParameters {
+    key: String
+}
+
+#[derive(Deserialize)]
+struct PostSettingQueryParameters {
+    #[serde(default)]
+    replace: bool,
+    #[serde(default)]
+    require_auth: bool
+}
+
+#[proof_route("GET /{key}")]
+async fn get_setting(
+    context: Data<AppContext>,
+    path: Path<SettingPathParameters>,
+    auth: OptionalAuth
+) -> Result<HttpResponse, SettingRouteError> {
+    let pool = context.database_pool();
+
+    let setting = Setting::fetch::<Vec<u8>>(&pool, &path.key)
         .await?
         .ok_or(SettingRouteError::NotConfigured)?;
 
+    if setting.requires_auth() && !auth.is_authorized() {
+        return Err(SettingRouteError::NotAuthenticated);
+    }
+
     Ok(
         HttpResponse::Ok()
-            .body(presentation)
+            .body(setting.into_value())
     )
 }
 
-#[proof_route("PUT /presentation")]
-async fn set_presentation(auth: OptionalAuth, value: Bytes) -> Result<HttpResponse, SettingRouteError> {
+#[proof_route("POST /{key}")]
+async fn post_setting(
+    context: Data<AppContext>,
+    path: Path<SettingPathParameters>,
+    query: Query<PostSettingQueryParameters>,
+    auth: OptionalAuth,
+    body: Bytes
+) -> Result<HttpResponse, SettingRouteError> {
     if !auth.is_authorized() {
         return Err(SettingRouteError::NotAuthenticated);
     }
 
-    Setting::store_or_update(
-        "PORTFOLIO_PRESENTATION",
-        String::from_utf8(value.to_vec())?
-    )
-        .await?;
+    let pool = context.database_pool();
+
+    if query.replace {
+        Setting::store_or_update(
+            &pool,
+            query.require_auth,
+            &path.key,
+            &body.to_vec()
+        )
+            .await?;
+    } else {
+        Setting::store_or_ignore(
+            &pool,
+            query.require_auth,
+            &path.key,
+            &body.to_vec()
+        )
+            .await?;
+    };
 
     Ok(
-        HttpResponse::NoContent()
+        HttpResponse::Created()
             .finish()
     )
 }
-
-#[proof_route("GET /moto")]
-async fn get_moto() -> Result<HttpResponse, SettingRouteError> {
-    let moto = Setting::fetch::<String>("PORTFOLIO_MOTO")
-        .await?
-        .ok_or(SettingRouteError::NotConfigured)?;
-
-    Ok(
-        HttpResponse::Ok()
-            .body(moto)
-    )
-}
-
-#[proof_route("PUT /moto")]
-async fn set_moto(auth: OptionalAuth, value: Bytes) -> Result<HttpResponse, SettingRouteError> {
-    if !auth.is_authorized() {
-        return Err(SettingRouteError::NotAuthenticated);
-    }
-
-    Setting::store_or_update(
-        "PORTFOLIO_MOTO",
-        String::from_utf8(value.to_vec())?
-    )
-        .await?;
-
-    Ok(
-        HttpResponse::NoContent()
-            .finish()
-    )
-}
-
