@@ -7,9 +7,9 @@ use octocrab::{Error as OctocrabError, Octocrab};
 use thiserror::Error;
 
 use crate::utils::application::context::AppContext;
-use crate::utils::requests::github::{fetch_repositories, GithubRequestError};
+use crate::utils::misc::github::{fetch_repositories, GithubRequestError};
 use crate::models::setting::SettingModelError;
-use crate::utils::requests::error_transformer::json_transformer;
+use crate::utils::misc::error_transformer::json_transformer;
 use crate::models::setting::Setting;
 
 #[derive(ErrorResponse, Error, Debug)]
