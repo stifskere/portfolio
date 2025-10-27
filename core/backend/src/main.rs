@@ -14,7 +14,6 @@ use tracing_subscriber::{fmt, EnvFilter};
 use crate::routes::settings::settings_scope;
 use crate::routes::github::github_scope;
 use crate::utils::application::context::{AppContext, AppContextError};
-use crate::utils::database::settings::setup_settings;
 
 mod models;
 mod routes;
@@ -43,10 +42,6 @@ async fn main() -> Result<(), AppError> {
     fmt()
         .with_env_filter(EnvFilter::from_default_env())
         .init();
-
-    // Setup the dynamic settings trough environment variables.
-    setup_settings()
-        .await?;
 
     // Create an app context that connects to
     // other services, holds aplication settings...
