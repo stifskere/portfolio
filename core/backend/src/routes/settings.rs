@@ -9,6 +9,8 @@ use crate::utils::application::context::AppContext;
 use crate::utils::requests::authentication::OptionalAuth;
 use crate::utils::requests::error_transformer::json_transformer;
 
+/// HTTP Errors that may happen within routes
+/// requesting or setting dynamic settings.
 #[derive(ErrorResponse, Error, Debug)]
 #[transform_response(json_transformer)]
 enum SettingRouteError {
@@ -24,17 +26,21 @@ enum SettingRouteError {
     Model(#[from] SettingModelError)
 }
 
+/// The application HTTP settings scope.
 pub fn settings_scope() -> Scope {
     scope("/setting")
         .service(get_setting)
         .service(post_setting)
 }
 
+/// The URL path parameters for both get and set
+/// used to refer to the dynamic setting.
 #[derive(Deserialize)]
 struct SettingPathParameters {
     key: String
 }
 
+/// The variable setter options.
 #[derive(Deserialize)]
 struct PostSettingQueryParameters {
     #[serde(default)]
@@ -43,6 +49,15 @@ struct PostSettingQueryParameters {
     require_auth: bool
 }
 
+/// HTTP controller to obtain the value
+/// of a dynamic setting.
+///
+/// In the case the variable does not exist
+/// it will return 404, in the case it requires
+/// authentication and the requester is not authenticated
+/// it will return 405.
+///
+/// Otherwise it returns 200 and the setting's contents.
 #[proof_route("GET /{key}")]
 async fn get_setting(
     context: Data<AppContext>,
@@ -65,6 +80,12 @@ async fn get_setting(
     )
 }
 
+/// HTTP controller to set a dynamic setting.
+///
+/// Always requires auth, not being authenticated
+/// will return a 405, otherwise it will store
+/// the setting value with the options
+/// and will return a 201.
 #[proof_route("POST /{key}")]
 async fn post_setting(
     context: Data<AppContext>,
