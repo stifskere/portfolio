@@ -6,8 +6,8 @@ use thiserror::Error;
 
 use crate::models::setting::{Setting, SettingModelError};
 use crate::utils::application::context::AppContext;
-use crate::utils::requests::authentication::OptionalAuth;
-use crate::utils::requests::error_transformer::json_transformer;
+use crate::utils::extractors::authentication::OptionalAuth;
+use crate::utils::misc::error_transformer::json_transformer;
 
 /// HTTP Errors that may happen within routes
 /// requesting or setting dynamic settings.
@@ -70,7 +70,7 @@ async fn get_setting(
         .await?
         .ok_or(SettingRouteError::NotConfigured)?;
 
-    if setting.requires_auth() && !auth.is_authorized() {
+    if setting.requires_auth() && !auth.is_authenticated() {
         return Err(SettingRouteError::NotAuthenticated);
     }
 
@@ -94,7 +94,7 @@ async fn post_setting(
     auth: OptionalAuth,
     body: Bytes
 ) -> Result<HttpResponse, SettingRouteError> {
-    if !auth.is_authorized() {
+    if !auth.is_authenticated() {
         return Err(SettingRouteError::NotAuthenticated);
     }
 
