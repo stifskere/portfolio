@@ -4,9 +4,8 @@ use sqlx::PgPool;
 use octocrab::{instance as octocrab_instance, Octocrab};
 use thiserror::Error;
 
-use crate::utils::database::connection::{database_connection, DatabaseConnectionError};
+use crate::utils::external::database::{database_connection, DatabaseConnectionError};
 use crate::utils::application::environment::{EnvironmentValidationError, PortfolioEnvironment};
-
 
 /// Holds any error that may happen during an interaction with
 /// the application.
