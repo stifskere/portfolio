@@ -7,7 +7,7 @@ use thiserror::Error;
 use crate::models::setting::{Setting, SettingModelError};
 use crate::utils::application::context::AppContext;
 use crate::utils::extractors::authentication::OptionalAuth;
-use crate::utils::misc::error_transformer::json_transformer;
+use crate::utils::application::errors::json_transformer;
 
 /// HTTP Errors that may happen within routes
 /// requesting or setting dynamic settings.
