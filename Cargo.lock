@@ -467,6 +467,7 @@ dependencies = [
  "actix-cors",
  "actix-web",
  "actix_failwrap",
+ "async-trait",
  "base64 0.22.1",
  "bcrypt",
  "bincode 2.0.1",

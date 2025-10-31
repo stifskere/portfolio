@@ -11,6 +11,7 @@ license = "MIT OR Apache-2.0"
 actix-cors = "0.7.1"
 actix-web = "4.11.0"
 actix_failwrap = "1.0.3"
+async-trait = "0.1.89"
 base64 = "0.22.1"
 bcrypt = "0.17.1"
 bincode = { version = "2.0.1", features = ["serde"] }
