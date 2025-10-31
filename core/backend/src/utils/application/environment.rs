@@ -34,7 +34,10 @@ pub struct PortfolioEnvironment {
     admin_password: String,
 
     #[envconfig(from = "DATABASE_URL")]
-    database_url: String
+    database_url: String,
+
+    #[envconfig(from = "STORAGE_URL")]
+    storage_url: String
 }
 
 impl PortfolioEnvironment {
@@ -74,5 +77,10 @@ impl PortfolioEnvironment {
     /// The application postgresql URL.
     pub fn database_url(&self) -> &str {
         &self.database_url
+    }
+
+    /// The raw storage URL including the protocol.
+    pub fn storage_url(&self) -> &str {
+        &self.storage_url
     }
 }
