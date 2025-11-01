@@ -1,0 +1,35 @@
+
+[sections.top.subtitle.first_p]
+en = "This page is coming soon, "
+es = "Esta pagina estara disponible proximamente, "
+ca = "Aquesta pàgina arribarà aviat, "
+
+[sections.top.subtitle.cv_link]
+en = "you can download my CV"
+es = "puedes descargar mi CV"
+ca = "pots descarregar el meu CV"
+
+[sections.top.subtitle.last_p]
+en = " anyways."
+es = " de todos modos."
+ca = " de tota manera."
+
+[sections.top.instance_build]
+en = "This instance was built in {build_time}."
+es = "Esta instancia fue compilada en {build_time}."
+ca = "Aquesta instància va ser compilada el {build_time}."
+
+[sections.top.motivational_quote]
+en = "Expect Great Things {smiling_face}"
+es = "Espera grandes cosas {smiling_face}"
+ca = "Espera coses grans {smiling_face}"
+
+[sections.top.portfolio_development.first_p]
+en = "Stay tunned about the "
+es = "Estate atento al "
+ca = "Estigueu atents al "
+
+[sections.top.portfolio_development.link]
+en = "portfolio development."
+es = "desarrollo de la pagina."
+ca = "desenvolupament de la pagina."

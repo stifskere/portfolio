@@ -10,6 +10,7 @@ use app::App;
 mod app;
 mod sections;
 mod components;
+mod utils;
 
 fn main() {
     let fmt_layer = ts_layer()
