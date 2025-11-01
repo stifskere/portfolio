@@ -1,92 +1,60 @@
 
-@keyframes top-appear {
-  0%, 99% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes top-flicker {
-  0%, 18%, 22%, 25%, 53%, 57%, 100% {
-    text-shadow:
-        0 0 7px #fff,
-        0 0 102px #fff;
-  }
-
-  20%, 24%, 55% {
-    text-shadow: none;
-  }
-}
-
-@keyframes arrow-appear {
-  0% {
-    top: 110%;
-
-    filter: opacity(0%);
-  }
-
-  100% {
-
-    filter: opacity(100%);
-  }
-}
-
-.top-section {
+.top-section-container {
   position: relative;
-}
-
-.top-section-titles {
-  position: absolute;
   display: flex;
 
-  top: 50%;
-  left: 50%;
+  height: 100vh;
+  width: 100vw;
 
   flex-direction: column;
   justify-content: center;
   align-items: center;
 
-  transform: translate(-50%, -50%);
+  font-family: roboto, sans-serif;
 
-  & > h1,
-  & > h2 {
-    font-family: "BBH Sans Bartle", sans-serif;
-
+  & > * {
     color: white;
-
-    animation:
-      top-appear 2s,
-      top-flicker 1.5s infinite alternate;
-
-    user-select: none;
   }
 
   & > h1 {
-    font-size: min(170px, 12vw);
+    font-size: 175px;
+    text-transform: uppercase;
   }
 
-  & > h2 {
-    font-size: min(30px, 2vw);
-
-    animation-delay: 0.3s;
+  & > p {
+    font-size: 20px;
   }
-}
 
-.top-section-down {
-  position: absolute;
+  & > .bottom-left-aside {
+    position: absolute;
 
-  top: 100%;
-  left: 50%;
+    top: 99%;
+    left: 1%;
 
-  color: white;
+    transform: translateY(-100%);
 
-  filter: opacity(0%);
+    & > h2 {
+      font-size: 16px;
+      font-weight: normal;
+    }
+  }
 
-  transform: translate(-50%, -200%) scale(150%);
+  & > .bottom-right-aside {
+    position: absolute;
 
-  animation: arrow-appear 0.5s ease forwards;
-  animation-delay: 1.5s;
+    top: 99%;
+    left: 99%;
+
+    width: max-content;
+    min-width: max-content;
+
+    transform: translate(-100%, -100%);
+
+    text-align: right;
+
+    & > h2 {
+      font-size: 16px;
+      font-weight: normal;
+    }
+  }
 }

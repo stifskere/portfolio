@@ -1,34 +1,17 @@
 @use "imports.scss";
 
-@use "components/text_scroller.scss";
-@use "components/presentation_link.scss";
-
 @use "sections/top.scss";
-@use "sections/presentation.scss";
 
 * {
   margin: 0;
   padding: 0;
 
-  cursor: url("/assets/cursor.cur"), default !important;
-}
-
-svg, svg > * {
-  cursor: url("/assets/cursor.cur"), default !important;
+  cursor: url("/assets/cursor.cur"), default;
 }
 
 body {
   background-color: black;
 }
-
-main {
-  height: 100vh;
-
-  overflow-y: scroll;
-
-  scroll-snap-type: y mandatory;
-}
-
 
 ::selection, ::-moz-selection {
   background: white;
@@ -36,10 +19,12 @@ main {
   text-shadow: none;
 }
 
-.main-section {
-  height: 100vh;
+.text-link {
+  color: darkgray;
 
-  overflow: hidden;
+  transition: color .2s;
 
-  scroll-snap-align: start;
+  &:hover {
+    color: gray;
+  }
 }

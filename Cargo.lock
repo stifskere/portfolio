@@ -1067,6 +1067,7 @@ dependencies = [
 name = "frontend"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "gloo 0.11.0",
  "log",
  "palette",

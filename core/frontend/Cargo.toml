@@ -21,3 +21,6 @@ wasm-bindgen = "=0.2.100"
 web-sys = { version = "0.3.70", features = ["Element", "HtmlElement", "ScrollBehavior", "ScrollToOptions"] }
 yew = { version="0.21", features=["csr"] }
 yew_icons = { version = "0.8.0", features = ["lucide"] }
+
+[build-dependencies]
+chrono = "0.4.42"
