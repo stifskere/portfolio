@@ -6,8 +6,24 @@ use crate::utils::language::inferred_browser_language;
 #[function_component(TopSection)]
 pub fn top_section() -> Html {
     let browser_language = use_state(inferred_browser_language);
+    let smiling_face = use_state(|| ";)");
 
-    // TODO: Implement smiling face.
+    // sf = smiling face.
+
+    let on_mouse_enter_sf = {
+        let smiling_face = smiling_face.clone();
+        Callback::from(move |_| {
+            smiling_face.set(":D");
+        })
+    };
+
+    let on_mouse_leave_sf = {
+        let smiling_face= smiling_face.clone();
+        Callback::from(move |_| {
+            smiling_face.set(";)");
+        })
+    };
+
     // TODO: Translate CV in three langauges.
     // TODO: Add rustc version footer.
 
@@ -58,12 +74,15 @@ pub fn top_section() -> Html {
             </aside>
 
             <aside class="bottom-right-aside">
-                <h2>
+                <h2
+                    onmouseenter={on_mouse_enter_sf}
+                    onmouseleave={on_mouse_leave_sf}
+                >
                     {
                         translation!(
                             (*browser_language).clone(),
                             static sections::top::motivational_quote,
-                            smiling_face = ";D"
+                            smiling_face = smiling_face.to_string()
                         )
                             .expect("Translation to exist.")
                     }
