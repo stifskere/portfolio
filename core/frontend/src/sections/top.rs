@@ -25,7 +25,6 @@ pub fn top_section() -> Html {
     };
 
     // TODO: Translate CV in three langauges.
-    // TODO: Add rustc version footer.
 
     html! {
         <section class="top-section-container">

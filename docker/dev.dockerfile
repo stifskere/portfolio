@@ -5,7 +5,7 @@ RUN cargo binstall -y --locked \
 	cargo-watch \
 	just
 
-FROM rust:1.89-bookworm
+FROM rust:1.91-bookworm
 
 ARG DATABASE_URL
 
