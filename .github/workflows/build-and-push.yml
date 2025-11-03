@@ -42,13 +42,17 @@ jobs:
           TAGGED="${{ steps.build.outputs.image_tagged }}"
           BASE="${{ steps.build.outputs.image_base }}"
 
-          # Push base image
-          docker push "$TAGGED"
+          FULL_TAGGED="$REGISTRY/$TAGGED"
+          FULL_BASE="$REGISTRY/$BASE"
+
+          # Retag image for target registry and push.
+          docker tag "$TAGGED" "$FULL_TAGGED"
+          docker push "$FULL_TAGGED";
 
           # Retag as latest and push again
           if [ "${BASE##*:}" != "latest" ]
           then
-            docker tag "$TAGGED" "${BASE}:latest"
-            docker push "${BASE}:latest"
+            docker tag "$TAGGED" "$FULL_BASE:latest"
+            docker push "$FULL_BASE:latest"
           fi
 
