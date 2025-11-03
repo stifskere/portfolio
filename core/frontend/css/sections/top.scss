@@ -19,10 +19,21 @@
   & > h1 {
     font-size: 175px;
     text-transform: uppercase;
+
+    @media (orientation: portrait) {
+      font-size: 250px;
+    }
   }
 
   & > p {
     font-size: 20px;
+    text-align: center;
+
+    padding: 0 20px;
+
+    @media (orientation: portrait) {
+      font-size: 40px;
+    }
   }
 
   & > .bottom-left-aside {
@@ -36,6 +47,10 @@
     & > h2 {
       font-size: 16px;
       font-weight: normal;
+    }
+
+    @media (orientation: portrait) {
+      visibility: hidden;
     }
   }
 
@@ -55,6 +70,16 @@
     & > h2 {
       font-size: 16px;
       font-weight: normal;
+
+      @media (orientation: portrait) {
+        font-size: 30px;
+      }
+    }
+
+    & > p {
+      @media (orientation: portrait) {
+        font-size: 30px;
+      }
     }
   }
 }

@@ -18,5 +18,9 @@
     &:hover {
       color: gray;
     }
+
+    @media (orientation: portrait) {
+      font-size: 40px;
+    }
   }
 }
