@@ -20,6 +20,30 @@ set dotenv-load
 		docker compose -f ./docker/dev.docker-compose.yml up --no-deps --build;
 	fi
 
+
+@build:
+	#!/bin/bash
+	set -e;
+
+	if [ "$BUILD_STAGE" = "true" ]
+	then
+		trunk build --release;
+	else
+		version=$(
+			cargo metadata --format-version 1 --no-deps \
+			| jq -r '[.packages[].version] | if (unique | length) == 1 then .[0] else empty end'
+		);
+
+		if [ -z "$version" ]
+		then
+			echo "Versions differ";
+			exit 1;
+		fi
+
+		docker build --build-arg BUILD_STAGE=true -t "portfolio:prod-$version" -f ./docker/prod.dockerfile .;
+		echo "Built release profile @ portfolio:prod-$version";
+	fi
+
 @migrate:
 	#!/bin/bash
 	set -e;
