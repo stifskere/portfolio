@@ -5,10 +5,11 @@ use gloo::storage::{LocalStorage, Storage};
 use translatable::Language;
 
 
-static ALLOWED_LANGUAGES: &[Language; 3] = &[
+static ALLOWED_LANGUAGES: &[Language; 4] = &[
     Language::EN,
     Language::ES,
-    Language::CA
+    Language::CA,
+    Language::RU
 ];
 
 pub fn fallback_browser_language() -> &'static Language {

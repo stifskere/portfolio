@@ -3,33 +3,40 @@
 en = "This page is coming soon, "
 es = "Esta pagina estara disponible proximamente, "
 ca = "Aquesta pàgina arribarà aviat, "
+ru = "Эта страница скоро появится, "
 
 [sections.top.subtitle.cv_link]
 en = "you can download my CV"
 es = "puedes descargar mi CV"
 ca = "pots descarregar el meu CV"
+ru = "вы можете скачать мое резюме"
 
 [sections.top.subtitle.last_p]
 en = " anyways."
 es = " de todos modos."
 ca = " de tota manera."
+ru = " в любом случае"
 
 [sections.top.instance_build]
 en = "This instance was built in {build_time}."
 es = "Esta instancia fue compilada en {build_time}."
 ca = "Aquesta instància va ser compilada el {build_time}."
+ru = "Этот экземпляр был построен за {build_time}."
 
 [sections.top.motivational_quote]
 en = "Expect Great Things {smiling_face}"
 es = "Espera grandes cosas {smiling_face}"
 ca = "Espera coses grans {smiling_face}"
+ru = "Ожидайте великих дел {smiling_face}"
 
 [sections.top.portfolio_development.first_p]
-en = "Stay tunned about the "
+en = "Stay tuned about the "
 es = "Estate atento al "
 ca = "Estigueu atents al "
+ru = "Оставайтесь с нами о "
 
 [sections.top.portfolio_development.link]
 en = "portfolio development."
 es = "desarrollo de la pagina."
 ca = "desenvolupament de la pagina."
+ru = "разработка портфолио."
