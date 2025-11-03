@@ -9,10 +9,18 @@
 
   z-index: 2;
 
+  @media (orientation: portrait) {
+    height: 200px;
+  }
+
   & > .socials-div {
     display: flex;
 
     gap: 15px;
+
+    @media (orientation: portrait) {
+      gap: 30px;
+    }
 
     & > a {
       color: white;
@@ -21,6 +29,11 @@
       width: 28px;
 
       transition: color .2s;
+
+      @media (orientation: portrait) {
+        height: 70px;
+        width: 70px;
+      }
 
       &:hover {
         color: gray;
@@ -38,13 +51,17 @@
     display: flex;
 
     top: 40%;
-    left: 40%;
+    left: 45%;
 
     width: 350px;
     height: 50px;
 
-    & > p {
+    @media (orientation: portrait) {
+      height: 100px;
+      width: 500px;
+    }
 
+    & > p {
       color: white;
 
       max-width: fit-content;
@@ -52,10 +69,18 @@
       font-family: roboto, sans-serif;
 
       align-self: flex-end;
+
+      @media (orientation: portrait) {
+        font-size: 30px;
+      }
     }
 
     & > svg {
-      height: 50px;
+      height: 100%;
+
+      @media (orientation: portrait) {
+        width: 200px;
+      }
     }
   }
 }

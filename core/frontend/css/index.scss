@@ -37,11 +37,21 @@ body {
 .socials-bar {
   top: 10px;
   left: 10px;
+
+  @media (orientation: portrait) {
+    top: 40px;
+    left: 20px;
+  }
 }
 
 .language-selection {
-  left: calc(100% - 10px);
   top: 10px;
+  left: calc(100% - 10px);
 
   transform: translateX(-100%);
+
+  @media (orientation: portrait) {
+    top: 40px;
+    left: calc(100% - 20px);
+  }
 }
