@@ -3,6 +3,7 @@ use tracing_subscriber::filter::Targets;
 use tracing_subscriber::fmt::layer as ts_layer;
 use tracing_subscriber::{prelude::*, registry as ts_registry};
 use tracing_web::MakeWebConsoleWriter;
+use wee_alloc::WeeAlloc;
 use yew::Renderer;
 
 use app::App;
@@ -11,6 +12,9 @@ mod app;
 mod sections;
 mod components;
 mod utils;
+
+#[global_allocator]
+static ALLOC: WeeAlloc = WeeAlloc::INIT;
 
 fn main() {
     let fmt_layer = ts_layer()

@@ -1,7 +1,11 @@
 [package]
 name = "backend"
-version = "0.1.0"
+version = "0.0.1"
+description = "My portfolio backend."
 edition = "2024"
+readme = "README.md"
+repository = "https://github.com/stifskere/portfolio"
+license = "MIT OR Apache-2.0"
 
 [dependencies]
 actix-cors = "0.7.1"
