@@ -3,24 +3,27 @@ use yew::prelude::*;
 
 use crate::utils::language::inferred_browser_language;
 
+const FACE_SMILING: &str = ";)";
+const FACE_LAUGHING: &str = ":D";
+
 #[function_component(TopSection)]
 pub fn top_section() -> Html {
     let browser_language = use_state(inferred_browser_language);
-    let smiling_face = use_state(|| ";)");
+    let smiling_face = use_state(|| FACE_SMILING);
 
     // sf = smiling face.
 
     let on_mouse_enter_sf = {
         let smiling_face = smiling_face.clone();
         Callback::from(move |_| {
-            smiling_face.set(":D");
+            smiling_face.set(FACE_LAUGHING);
         })
     };
 
     let on_mouse_leave_sf = {
         let smiling_face= smiling_face.clone();
         Callback::from(move |_| {
-            smiling_face.set(";)");
+            smiling_face.set(FACE_SMILING);
         })
     };
 
