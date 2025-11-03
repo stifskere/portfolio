@@ -1,5 +1,6 @@
 @use "imports.scss";
 
+@use "components/language_selection.scss";
 @use "components/socials_bar.scss";
 
 @use "sections/top.scss";
@@ -29,4 +30,18 @@ body {
   &:hover {
     color: gray;
   }
+}
+
+// GLOBALS
+
+.socials-bar {
+  top: 10px;
+  left: 10px;
+}
+
+.language-selection {
+  left: calc(100% - 10px);
+  top: 10px;
+
+  transform: translateX(-100%);
 }

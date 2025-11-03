@@ -1,0 +1,22 @@
+
+.language-selection-container {
+  position: absolute;
+
+  z-index: 2;
+
+  & > button {
+    border: none;
+
+    background-color: transparent;
+    color: white;
+
+    font-family: roboto, sans-serif;
+    font-size: 17px;
+
+    transition: color .2s;
+
+    &:hover {
+      color: gray;
+    }
+  }
+}

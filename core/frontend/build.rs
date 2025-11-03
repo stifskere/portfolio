@@ -6,7 +6,7 @@ fn main() {
     println!("cargo::rerun-if-changed=../translations/*");
 
     // Set the build date as a compile time environment variable.
-    println!("cargo:rustc-env=BUILD_TIME={}", Utc::now().format("%Y-%M-%d %H:%m:%S"));
+    println!("cargo:rustc-env=BUILD_TIME={}", Utc::now().format("%Y-%m-%d %H:%M:%S"));
 
     // Set the rustc version as a compile time environment variable.
     // if the variable is unknown, this prints <unknown>
