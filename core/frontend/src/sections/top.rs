@@ -43,7 +43,8 @@ pub fn top_section() -> Html {
                 }
                 <a
                     class="text-link"
-                    href="/assets/provisional-cv.pdf"
+                    href={format!("/assets/CV_{:?}.pdf", *app_context.language)}
+                    target="_blank"
                 >
                     {
                         translation!(
