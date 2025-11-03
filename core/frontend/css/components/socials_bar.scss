@@ -1,0 +1,59 @@
+
+.socials-bar-container {
+  position: absolute;
+  display: flex;
+
+  flex-direction: column;
+
+  top: 10px;
+  left: 10px;
+
+  height: 80px;
+
+  z-index: 2;
+
+  & > .socials-div {
+    display: flex;
+
+    gap: 15px;
+
+    & > a {
+      color: white;
+
+      height: 28px;
+      width: 28px;
+
+      transition: color .2s;
+
+      &:hover {
+        color: gray;
+      }
+
+      & > svg {
+        height: 100%;
+        width: 100%;
+      }
+    }
+  }
+
+  & > .info-div {
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    width: 380px;
+
+    & > p {
+      color: white;
+
+      font-family: roboto, sans-serif;
+
+      align-self: flex-end;
+    }
+
+    & > svg {
+      height: 50px;
+    }
+  }
+}
