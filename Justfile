@@ -29,6 +29,7 @@ set dotenv-load
 	then
 		trunk build --release;
 	else
+		image_name="${IMAGE_NAME:-portfolio}";
 		version=$(
 			cargo metadata --format-version 1 --no-deps \
 			| jq -r '[.packages[].version] | if (unique | length) == 1 then .[0] else empty end'
@@ -40,8 +41,8 @@ set dotenv-load
 			exit 1;
 		fi
 
-		docker build --build-arg BUILD_STAGE=true -t "portfolio:prod-$version" -f ./docker/prod.dockerfile .;
-		echo "Built release profile @ portfolio:prod-$version";
+		docker build --build-arg BUILD_STAGE=true -t "$image_name:prod-$version" -f ./docker/prod.dockerfile .;
+		echo "$image_name:prod-$version";
 	fi
 
 @migrate:

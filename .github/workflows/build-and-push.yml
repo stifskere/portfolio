@@ -1,0 +1,54 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: stifskere/portfolio
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Install Just
+        run: |
+          curl -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+
+      - name: Build Project
+        id: build
+        run: |
+          image=$(just build)
+          echo "image_tagged=$image" >> "$GITHUB_OUTPUT"
+          echo "image_base=${image%:*}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GitHub Container Registry
+        if: success()
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login "$REGISTRY" -u "${{ github.actor }}" --password-stdin
+
+      - name: Push Image
+        if: success()
+        run: |
+          TAGGED="${{ steps.build.outputs.image_tagged }}"
+          BASE="${{ steps.build.outputs.image_base }}"
+
+          # Push base image
+          docker push "$TAGGED"
+
+          # Retag as latest and push again
+          if [ "${BASE##*:}" != "latest" ]
+          then
+            docker tag "$TAGGED" "${BASE}:latest"
+            docker push "${BASE}:latest"
+          fi
+
