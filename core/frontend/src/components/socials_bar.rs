@@ -2,14 +2,21 @@ use yew::prelude::*;
 use yew_icons::{Icon, IconId};
 use translatable::translation;
 
-use crate::utils::language::inferred_browser_language;
+use crate::utils::application::context::AppContext;
+
+#[derive(Properties, PartialEq)]
+pub struct SocialsBarProps {
+    #[prop_or_default]
+    pub class: String
+}
 
 #[function_component(SocialsBar)]
-pub fn socials_bar() -> Html {
-    let browser_language = use_state(inferred_browser_language);
+pub fn socials_bar(props: &SocialsBarProps) -> Html {
+    let app_context = use_context::<AppContext>()
+        .expect("App to not be broken.");
 
     html! {
-        <nav class="socials-bar-container">
+        <nav class={classes!("socials-bar-container", &props.class)}>
             <div class="socials-div">
                 <a href="https://github.com/stifskere" target="_blank">
                     <Icon icon_id={IconId::BootstrapGithub} />
@@ -40,7 +47,7 @@ pub fn socials_bar() -> Html {
                 <p>
                     {
                         translation!(
-                            (*browser_language).clone(),
+                            (*app_context.language).clone(),
                             static components::socials_bar::check_out_text
                         )
                             .expect("Translation to exist.")

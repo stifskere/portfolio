@@ -1,14 +1,15 @@
 use translatable::translation;
 use yew::prelude::*;
 
-use crate::utils::language::inferred_browser_language;
+use crate::utils::application::context::AppContext;
 
 const FACE_SMILING: &str = ";)";
 const FACE_LAUGHING: &str = ":D";
 
 #[function_component(TopSection)]
 pub fn top_section() -> Html {
-    let browser_language = use_state(inferred_browser_language);
+    let app_context = use_context::<AppContext>()
+        .expect("App to not be broken.");
     let smiling_face = use_state(|| FACE_SMILING);
 
     // sf = smiling face.
@@ -35,7 +36,7 @@ pub fn top_section() -> Html {
             <p>
                 {
                     translation!(
-                        (*browser_language).clone(),
+                        (*app_context.language).clone(),
                         static sections::top::subtitle::first_p
                     )
                         .expect("Translation to exist.")
@@ -46,7 +47,7 @@ pub fn top_section() -> Html {
                 >
                     {
                         translation!(
-                            (*browser_language).clone(),
+                            (*app_context.language).clone(),
                             static sections::top::subtitle::cv_link
                         )
                             .expect("Translation to exist.")
@@ -54,7 +55,7 @@ pub fn top_section() -> Html {
                 </a>
                 {
                     translation!(
-                        (*browser_language).clone(),
+                        (*app_context.language).clone(),
                         static sections::top::subtitle::last_p
                     )
                         .expect("Translation to exist.")
@@ -65,7 +66,7 @@ pub fn top_section() -> Html {
                 <h2>
                     {
                         translation!(
-                            (*browser_language).clone(),
+                            (*app_context.language).clone(),
                             static sections::top::instance_build,
                             build_time = env!("BUILD_TIME")
                         )
@@ -82,7 +83,7 @@ pub fn top_section() -> Html {
                 >
                     {
                         translation!(
-                            (*browser_language).clone(),
+                            (*app_context.language).clone(),
                             static sections::top::motivational_quote,
                             smiling_face = smiling_face.to_string()
                         )
@@ -92,7 +93,7 @@ pub fn top_section() -> Html {
                 <p>
                     {
                         translation!(
-                            (*browser_language).clone(),
+                            (*app_context.language).clone(),
                             static sections::top::portfolio_development::first_p
                         )
                             .expect("Translation to exist.")
@@ -103,7 +104,7 @@ pub fn top_section() -> Html {
                     >
                         {
                             translation!(
-                                (*browser_language).clone(),
+                                (*app_context.language).clone(),
                                 static sections::top::portfolio_development::link
                             )
                                 .expect("Translation to exist.")
