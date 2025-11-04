@@ -2,7 +2,7 @@
 terraform {
   backend "s3" {
     bucket = "personal"
-    key = "portfolio/terraform.tfstate"
+    key = "terraform.tfstate"
     region = "eu-west-1"
 
     endpoints = {
@@ -14,6 +14,8 @@ terraform {
     skip_metadata_api_check = true
     skip_region_validation = true
     use_path_style = true
+
+    workspace_key_prefix = ""
   }
 
 	required_providers {
