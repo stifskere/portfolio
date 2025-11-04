@@ -76,9 +76,11 @@ jobs:
           chmod 600 "$HOME/.kube/config"
 
       - name: Terraform Init
+        working-directory: terraform
         run: terraform init
 
       - name: Terraform Apply
+        working-directory: terraform
         run: terraform apply -auto-approve
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
