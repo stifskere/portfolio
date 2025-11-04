@@ -65,7 +65,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: "${{ secrets.S3_ACCESS_KEY_SECRET }}"
       TF_VAR_cluster: |
         {
-          "kubeconfig": "$HOME/.kube/config"
+          "kubeconfig": "./kube-config"
         }
       TF_VAR_cloudflare: |
         {
@@ -84,17 +84,17 @@ jobs:
         with:
           terraform_version: 1.13.4
 
-      - name: Setup Kubeconfig
-        run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG_CONTENT }}" > "$HOME/.kube/config"
-          chmod 600 "$HOME/.kube/config"
-
       - name: Setup AWS CLI
         run: |
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
           sudo ./aws/install --update
+
+      - name: Setup Kubeconfig
+        working-directory: terraform
+        run: |
+          echo "${{ secrets.KUBECONFIG_CONTENT }}" > "./kube-config"
+          chmod 600 "./kube-config"
 
       - name: Get State From Server
         working-directory: terraform

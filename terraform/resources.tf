@@ -10,7 +10,7 @@ resource "cloudflare_record" "portfolio" {
 	zone_id = data.cloudflare_zone.portfolio.id
   name = "@"
   type = "A"
-  value = var.cloudflare.target_address
+  content = var.cloudflare.target_address
   proxied = true
 }
 
