@@ -10,7 +10,7 @@ resource "cloudflare_record" "portfolio" {
 	zone_id = data.cloudflare_zone.portfolio.id
   name = "@"
   type = "A"
-  value = var.cluster.target_address
+  value = var.cloudflare.target_address
   proxied = true
 }
 
@@ -28,7 +28,7 @@ resource "kubernetes_namespace" "portfolio" {
 resource "kubernetes_deployment" "portfolio" {
   metadata {
     name = "portfolio"
-    namespace = kubernetes_namespace.portfolio.metadata.name
+    namespace = kubernetes_namespace.portfolio.metadata[0].name
     labels = {
       app = "portfolio"
     }
@@ -67,7 +67,7 @@ resource "kubernetes_deployment" "portfolio" {
 resource "kubernetes_service" "portfolio" {
   metadata {
     name = "portfolio"
-    namespace = kubernetes_namespace.portfolio.metadata.name
+    namespace = kubernetes_namespace.portfolio.metadata[0].name
   }
 
   spec {
@@ -92,7 +92,7 @@ resource "kubernetes_manifest" "portfolio_certificate" {
 
     metadata = {
       name = "portfolio-certificate"
-      namespace = kubernetes_namespace.portfolio.metadata.name
+      namespace = kubernetes_namespace.portfolio.metadata[0].name
     }
 
     spec = {
@@ -108,41 +108,47 @@ resource "kubernetes_manifest" "portfolio_certificate" {
 }
 
 // ingress
-resource "kubernetes_ingress" "portfolio" {
-  metadata {
-    name = "portfolio"
-    namespace = kubernetes_namespace.portfolio.metadata.name
+resource "kubernetes_manifest" "portfolio_ingress" {
+  manifest = {
+    apiVersion = "networking.k8s.io/v1"
+    kind = "Ingress"
 
-    annotations = {
-      "traefik.ingress.kubernetes.io/router.middlewares" = "default-redirect-https@kubernetescrd"
-      "cert-manager.io/cluster-issuer" = "letsencrypt-prod"
-    }
-  }
-
-  spec {
-    rule {
-      host = data.cloudflare_zone.portfolio.name
-
-      http {
-        path {
-          path = "/"
-          path_type = "Prefix"
-
-          backend {
-            service {
-              name = "portfolio"
-              port {
-                number = 8080
-              }
-            }
-          }
-        }
+    metadata = {
+      name      = "portfolio"
+      namespace = kubernetes_namespace.portfolio.metadata[0].name
+      annotations = {
+        "traefik.ingress.kubernetes.io/router.middlewares" = "default-redirect-https@kubernetescrd"
+        "cert-manager.io/cluster-issuer" = "letsencrypt-prod"
       }
     }
 
-    tls {
-      hosts = [data.cloudflare_zone.portfolio.name]
-      secret_name = "portfolio-tls"
+    spec = {
+      rules = [
+        {
+          host = data.cloudflare_zone.portfolio.name
+          http = {
+            paths = [
+              {
+                path     = "/"
+                pathType = "Prefix"
+                backend = {
+                  service = {
+                    name = "portfolio"
+                    port = { number = 8080 }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+
+      tls = [
+        {
+          hosts      = [data.cloudflare_zone.portfolio.name]
+          secretName = "portfolio-tls"
+        }
+      ]
     }
   }
 }
