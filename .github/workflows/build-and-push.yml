@@ -61,13 +61,12 @@ jobs:
     needs: build
 
     env:
-      AWS_ACCESS_KEY_ID: "${{ secrets.S3_ACCESS_KEY_ID }}"
-      AWS_SECRET_ACCESS_KEY: "${{ secrets.S3_ACCESS_KEY_SECRET }}"
       TF_VAR_cluster_kubeconfig: "$HOME/.kube/config"
       TF_VAR_cluster_target_address: "${{ secrets.TF_CLUSTER_TARGET_ADDRESS }}"
       TF_VAR_cloudflare_api_token: "${{ secrets.TF_CLOUDFLARE_API_TOKEN }}"
       TF_VAR_cloudflare_target_domain: "${{ secrets.TF_CLOUDFLARE_TARGET_DOMAIN }}"
 
+    # Not the ideal use of terraform but can do for now.
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -77,23 +76,36 @@ jobs:
         with:
           terraform_version: 1.13.4
 
-      - name: Configure Kubeconfig
+      - name: Setup Kubeconfig
         run: |
           mkdir -p $HOME/.kube
           echo "${{ secrets.KUBECONFIG_CONTENT }}" > "$HOME/.kube/config"
           chmod 600 "$HOME/.kube/config"
 
+      - name: Setup AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: "${{ secrets.S3_ACCESS_KEY_ID }}"
+          aws-secret-access-key: "${{ secrets.S3_ACCESS_KEY_SECRET }}"
+          aws-region: eu-west-1
+
+      - name: Get State From Server
+        working-directory: terraform
+        run: |
+          aws s3 cp s3://personal/portfolio/terraform.tfstate ./terraform.tfstate \
+            --endpoint-url "${{ secrets.S3_ENDPOINT }}" \
+          || echo "No remote state yet, proceeding..."
+
       - name: Terraform Init
         working-directory: terraform
         run: terraform init
 
-      - name: Terraform Select Workspace
-        working-directory: terraform
-        run: |
-          terraform workspace select portfolio \
-          || (terraform workspace new portfolio \
-          && terraform workspace select portfolio)
-
       - name: Terraform Apply
         working-directory: terraform
         run: terraform apply -auto-approve
+
+      - name: Push State To Server
+        working-directory: terraform
+        run: |
+          aws s3 cp ./terraform.tfstate s3://personal/portfolio/terraform.tfstate \
+            --endpoint-url "${{ secrets.S3_ENDPOINT }}"
