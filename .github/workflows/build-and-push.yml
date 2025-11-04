@@ -60,6 +60,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
 
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY_SECRET }}
+      TF_VAR_cluster_kubeconfig: "$HOME/.kube/config"
+      TF_VAR_cluster_target_address: "${{ secrets.TF_CLUSTER_TARGET_ADDRESS }}"
+      TF_VAR_cloudflare_api_token: "${{ secrets.TF_CLOUDFLARE_API_TOKEN }}"
+      TF_VAR_cloudflare_target_domain: "${{ secrets.TF_CLOUDFLARE_TARGET_DOMAIN }}"
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -82,11 +90,3 @@ jobs:
       - name: Terraform Apply
         working-directory: terraform
         run: terraform apply -auto-approve
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY_SECRET }}
-          TF_VAR_cluster_kubeconfig: "$HOME/.kube/config"
-          TF_VAR_cluster_target_address: "${{ secrets.TF_CLUSTER_TARGET_ADDRESS }}"
-          TF_VAR_cloudflare_api_token: "${{ secrets.TF_CLOUDFLARE_API_TOKEN }}"
-          TF_VAR_cloudflare_target_domain: "${{ secrets.TF_CLOUDFLARE_TARGET_DOMAIN }}"
-

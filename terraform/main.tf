@@ -1,10 +1,13 @@
 
 terraform {
   backend "s3" {
-    endpoint = "https://s3.memw.es"
     bucket = "personal"
     key = "portfolio/terraform.tfstate"
     region = "eu-west-1"
+
+    endpoints = {
+      s3 = "https://s3.memw.es"
+    }
 
     skip_credentials_validation = true
     skip_metadata_api_check = true
