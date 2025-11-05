@@ -7,7 +7,7 @@ data "cloudflare_zone" "portfolio" {
 }
 
 resource "cloudflare_record" "portfolio" {
-  for_each = toset(var.cloudflare.target_records)
+  for_each = var.cloudflare.target_records
 
 	zone_id = data.cloudflare_zone.portfolio.id
   name = each.key == var.cloudflare.target_zone ? "@" : replace(each.key, ".${var.cloudflare.target_zone}", "")
@@ -126,7 +126,7 @@ resource "kubernetes_manifest" "portfolio_ingress" {
 
     spec = {
       rules = [
-        for domain in keys(var.cloudflare.target_domains) : {
+        for domain in keys(var.cloudflare.target_records) : {
           host = domain
           http = {
             paths = [
@@ -147,7 +147,7 @@ resource "kubernetes_manifest" "portfolio_ingress" {
 
       tls = [
         {
-          hosts = keys(var.cloudflare.target_domains)
+          hosts = keys(var.cloudflare.target_records)
           secretName = "portfolio-tls"
         }
       ]

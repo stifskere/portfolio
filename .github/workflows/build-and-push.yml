@@ -10,7 +10,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: stifskere/portfolio
+  IMAGE_NAME: stifskere/portfolio-prod
 
 jobs:
   build:
@@ -27,7 +27,7 @@ jobs:
       - name: Build Project
         id: build
         run: |
-          image=$(just build)
+          image=$(IMAGE_TAG="$REGISTRY/$IMAGE_NAME" just build)
           echo "image_tag=$image" >> "$GITHUB_OUTPUT"
 
       - name: Log in to GitHub Container Registry
@@ -39,12 +39,7 @@ jobs:
       - name: Push Image
         if: success()
         run: |
-          orig_image_tag="${{ steps.build.outputs.image_tag }}"
-          target_image_tag="$REGISTRY/$orig_image_tag"
-
-          # Retag image for target registry and push.
-          docker tag "$orig_image_tag" "$target_image_tag"
-          docker push "$target_image_tag";
+          docker push "${{ steps.build.outputs.image_tag }}";
 
 
   deploy:
@@ -94,7 +89,7 @@ jobs:
           terraform apply -auto-approve \
             -var='cluster={
               kubeconfig = "./kubeconfig",
-              deployment_tag = "${{ steps.version.outputs.project_version }}"
+              deployment_tag = "$REGISTRY/$IMAGE_NAME:prod-${{ steps.version.outputs.project_version }}"
             }' \
             -var='cloudflare={
               api_token = "${{ secrets.TF_VARS_CLOUDFLARE_API_KEY }}",

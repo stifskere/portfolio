@@ -46,10 +46,10 @@ just := `command -v just`
 	then
 		trunk build --release;
 	else
-		image_name="${IMAGE_NAME:-portfolio}";
+		image_name="${IMAGE_TAG:-portfolio}";
 		version="$({{just}} info version)";
 
-		docker build --build-arg BUILD_STAGE=true -t "$image_name:prod-$version" -f ./docker/prod.dockerfile .;
+		docker build --build-arg BUILD_STAGE=true -t "$image_name:$version" -f ./docker/prod.dockerfile .;
 		echo "$image_name:prod-$version";
 	fi
 
