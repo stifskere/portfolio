@@ -28,67 +28,42 @@ jobs:
         id: build
         run: |
           image=$(just build)
-          echo "image_tagged=$image" >> "$GITHUB_OUTPUT"
-          echo "image_base=${image%:*}" >> "$GITHUB_OUTPUT"
+          echo "image_tag=$image" >> "$GITHUB_OUTPUT"
 
       - name: Log in to GitHub Container Registry
         if: success()
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login "$REGISTRY" -u "${{ github.actor }}" --password-stdin
+          echo "${{ secrets.GITHUB_TOKEN }}" \
+          | docker login "$REGISTRY" -u "${{ github.actor }}" --password-stdin
 
       - name: Push Image
         if: success()
         run: |
-          TAGGED="${{ steps.build.outputs.image_tagged }}"
-          BASE="${{ steps.build.outputs.image_base }}"
-
-          FULL_TAGGED="$REGISTRY/$TAGGED"
-          FULL_BASE="$REGISTRY/$BASE"
+          orig_image_tag="${{ steps.build.outputs.image_tag }}"
+          target_image_tag="$REGISTRY/$orig_image_tag"
 
           # Retag image for target registry and push.
-          docker tag "$TAGGED" "$FULL_TAGGED"
-          docker push "$FULL_TAGGED";
+          docker tag "$orig_image_tag" "$target_image_tag"
+          docker push "$target_image_tag";
 
-          # Retag as latest and push again
-          if [ "${BASE##*:}" != "latest" ]
-          then
-            docker tag "$TAGGED" "$FULL_BASE:latest"
-            docker push "$FULL_BASE:latest"
-          fi
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
+    environment: DEPLOYMENT
 
-    env:
-      AWS_ACCESS_KEY_ID: "${{ secrets.S3_ACCESS_KEY_ID }}"
-      AWS_SECRET_ACCESS_KEY: "${{ secrets.S3_ACCESS_KEY_SECRET }}"
-      TF_VAR_cluster: |
-        {
-          "kubeconfig": "./kube-config"
-        }
-      TF_VAR_cloudflare: |
-        {
-          "api_token": "${{ secrets.TF_CLOUDFLARE_API_TOKEN }}",
-          "target_domain": "${{ secrets.TF_CLOUDFLARE_TARGET_DOMAIN }}",
-          "target_address": "${{ secrets.TF_CLUSTER_TARGET_ADDRESS }}"
-        }
-
-    # Not the ideal use of terraform but can do for now.
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
+
+      - name: Install Just
+        run: |
+          curl -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.13.4
-
-      - name: Setup AWS CLI
-        run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install --update
 
       - name: Setup Kubeconfig
         working-directory: terraform
@@ -96,23 +71,33 @@ jobs:
           echo "${{ secrets.KUBECONFIG_CONTENT }}" > "./kube-config"
           chmod 600 "./kube-config"
 
-      - name: Get State From Server
-        working-directory: terraform
+      - name: Compute Project Version
+        id: version
         run: |
-          aws s3 cp s3://personal/portfolio/terraform.tfstate ./terraform.tfstate \
-            --endpoint-url "${{ secrets.S3_ENDPOINT }}" \
-          || echo "No remote state yet, proceeding..."
+          version="$(just info version)";
+          echo "project_version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Terraform Init
         working-directory: terraform
-        run: terraform init
+        run: |
+          terraform init \
+            -backend-config='endpoints={s3="${{ secrets.TF_BACKEND_S3_ENDPOINT }}"}' \
+            -backend-config="bucket=${{ secrets.TF_BACKEND_S3_BUCKET }}" \
+            -backend-config="key=${{ secrets.TF_BACKEND_S3_KEY }}" \
+            -backend-config="region=${{ secrets.TF_BACKEND_S3_REGION }}" \
+            -backend-config="access_key=${{ secrets.TF_BACKEND_S3_ACCESS_KEY_ID }}" \
+            -backend-config="secret_key=${{ secrets.TF_BACKEND_S3_ACCESS_KEY_SECRET }}"
 
       - name: Terraform Apply
         working-directory: terraform
-        run: terraform apply -auto-approve
-
-      - name: Push State To Server
-        working-directory: terraform
         run: |
-          aws s3 cp ./terraform.tfstate s3://personal/portfolio/terraform.tfstate \
-            --endpoint-url "${{ secrets.S3_ENDPOINT }}"
+          terraform apply -auto-approve \
+            -var='cluster={
+              kubeconfig = "./kubeconfig",
+              deployment_tag = "${{ steps.version.outputs.project_version }}"
+            }' \
+            -var='cloudflare={
+              api_token = "${{ secrets.TF_VARS_CLOUDFLARE_API_KEY }}",
+              target_zone = "${{ secrets.TF_VARS_CLOUDFLARE_TARGET_ZONE }}",
+              target_records = ${{ secrets.TF_VARS_CLOUDFLARE_TARGET_RECORDS }}
+            }'

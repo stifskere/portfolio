@@ -3,14 +3,16 @@
 
 
 data "cloudflare_zone" "portfolio" {
-	name = var.cloudflare.target_domain
+	name = var.cloudflare.target_zone
 }
 
 resource "cloudflare_record" "portfolio" {
+  for_each = toset(var.cloudflare.target_records)
+
 	zone_id = data.cloudflare_zone.portfolio.id
-  name = "@"
+  name = each.key == var.cloudflare.target_zone ? "@" : replace(each.key, ".${var.cloudflare.target_zone}", "")
   type = "A"
-  content = var.cloudflare.target_address
+  content = each.value
   proxied = true
 }
 
@@ -53,7 +55,7 @@ resource "kubernetes_deployment" "portfolio" {
       spec {
         container {
           name = "portfolio"
-          image = "ghcr.io/stifskere/portfolio:latest"
+          image = var.cluster.deployment_tag
           port {
             container_port = 8080
           }
@@ -124,8 +126,8 @@ resource "kubernetes_manifest" "portfolio_ingress" {
 
     spec = {
       rules = [
-        {
-          host = data.cloudflare_zone.portfolio.name
+        for domain in keys(var.cloudflare.target_domains) : {
+          host = domain
           http = {
             paths = [
               {
@@ -145,7 +147,7 @@ resource "kubernetes_manifest" "portfolio_ingress" {
 
       tls = [
         {
-          hosts      = [data.cloudflare_zone.portfolio.name]
+          hosts = keys(var.cloudflare.target_domains)
           secretName = "portfolio-tls"
         }
       ]

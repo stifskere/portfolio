@@ -1,5 +1,13 @@
 set dotenv-load
 
+just := `command -v just`
+
+# just dev
+#
+# Starts a dvelopment container.
+#
+# Triggers `docker compose` to build and start a container, the definitions
+# are at `docker/dev.docker-compose.yml`.
 @dev:
 	#!/bin/bash
 	set -e;
@@ -21,6 +29,15 @@ set dotenv-load
 	fi
 
 
+# just build
+#
+# Builds the project or provides build information.
+#
+# This recipe will build a container with the tag
+# "$IMAGE_NAME" or `portfolio` if the variable is not
+# found.
+#
+# Building will output the tag to stdout.
 @build:
 	#!/bin/bash
 	set -e;
@@ -30,7 +47,30 @@ set dotenv-load
 		trunk build --release;
 	else
 		image_name="${IMAGE_NAME:-portfolio}";
-		version=$(
+		version="$({{just}} info version)";
+
+		docker build --build-arg BUILD_STAGE=true -t "$image_name:prod-$version" -f ./docker/prod.dockerfile .;
+		echo "$image_name:prod-$version";
+	fi
+
+# just info <key>
+#
+# Provides information about the project.
+#
+# The info is interpreted as key value pairs, where accessing
+# a key will compute the value and display it on stdout.
+#
+# In the case a value can't be computed the exit code will be 1,
+# meaning that the output cannot be trusted.
+#
+# Allowed keys:
+# - `version`: Computes the version of the project.
+@info key:
+	#!/bin/bash
+	set -e;
+
+	function version() {
+		local version=$(
 			cargo metadata --format-version 1 --no-deps \
 			| jq -r '[.packages[].version] | if (unique | length) == 1 then .[0] else empty end'
 		);
@@ -41,10 +81,21 @@ set dotenv-load
 			exit 1;
 		fi
 
-		docker build --build-arg BUILD_STAGE=true -t "$image_name:prod-$version" -f ./docker/prod.dockerfile .;
-		echo "$image_name:prod-$version";
-	fi
+		echo "$version";
+	}
 
+	case "{{key}}" in
+		"version")
+			version
+			;;
+		*)
+			echo "Key not found."
+			exit 1
+			;;
+	esac
+
+
+# PENDING TO MIGRATE.
 @migrate:
 	#!/bin/bash
 	set -e;

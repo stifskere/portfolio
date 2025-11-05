@@ -4,7 +4,7 @@ This repository even if named `portfolio` it's an ecosystem resume or
 entry site. It's purpose is to connect all the services I host such
 as my blog (coming soon), the things I sell and so on.
 
-# Contents and Objectives
+## Contents and Objectives
 
 The objectives for my whole ecosystem are defined in various
 issues and some not yet written issues @ [`the ecosystem project`](https://github.com/users/stifskere/projects/3)
@@ -70,7 +70,7 @@ It should contain the sections to modify as
 - A footer modification section.
 
 
-# Deployments
+## Deployments
 
 For now this hosts a `coming soon` page, which won't be touched until
 all the back-end needs are met.
@@ -80,7 +80,7 @@ a deployment is triggered when pushing to main, the container
 will be built in production mode and pushed
 if all the crate versions equal.
 
-# License
+## License
 
 This is dual licensed by [Apache-2](/LICENSE-APACHE) or [MIT](/LICENSE-MIT) at your disposal.
 The licenses are provided in the repository.
