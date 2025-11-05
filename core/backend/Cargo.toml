@@ -1,6 +1,6 @@
 [package]
 name = "backend"
-version = "0.0.1"
+version = "0.0.2"
 description = "My portfolio backend."
 edition = "2024"
 readme = "README.md"
