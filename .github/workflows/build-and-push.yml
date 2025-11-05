@@ -10,7 +10,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: stifskere/portfolio-prod
+  IMAGE_NAME: stifskere/portfolio
 
 jobs:
   build:
@@ -89,7 +89,7 @@ jobs:
           terraform apply -auto-approve \
             -var='cluster={
               kubeconfig = "./kubeconfig",
-              deployment_tag = "$REGISTRY/$IMAGE_NAME:prod-${{ steps.version.outputs.project_version }}"
+              deployment_tag = "$REGISTRY/$IMAGE_NAME:${{ steps.version.outputs.project_version }}"
             }' \
             -var='cloudflare={
               api_token = "${{ secrets.TF_VARS_CLOUDFLARE_API_KEY }}",

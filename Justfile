@@ -50,7 +50,7 @@ just := `command -v just`
 		version="$({{just}} info version)";
 
 		docker build --build-arg BUILD_STAGE=true -t "$image_name:$version" -f ./docker/prod.dockerfile .;
-		echo "$image_name:prod-$version";
+		echo "$image_name:$version";
 	fi
 
 # just info <key>
