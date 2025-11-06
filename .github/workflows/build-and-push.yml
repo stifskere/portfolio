@@ -87,10 +87,10 @@ jobs:
         working-directory: terraform
         run: |
           terraform apply -auto-approve \
-            -var='cluster={
-              kubeconfig = "./kube-config",
-              deployment_tag = "$REGISTRY/$IMAGE_NAME:${{ steps.version.outputs.project_version }}"
-            }' \
+            -var="cluster={
+              kubeconfig = \"./kube-config\",
+              deployment_tag = \"$REGISTRY/$IMAGE_NAME:${{ steps.version.outputs.project_version }}\"
+            }" \
             -var='cloudflare={
               api_token = "${{ secrets.TF_VARS_CLOUDFLARE_API_KEY }}",
               target_zone = "${{ secrets.TF_VARS_CLOUDFLARE_TARGET_ZONE }}",
