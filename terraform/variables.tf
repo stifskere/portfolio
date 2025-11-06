@@ -8,7 +8,7 @@ variable "cluster" {
     // Where the container is deployed.
     deployment_tag = string
   })
-  sensitive = true
+  sensitive = false
 }
 
 variable "cloudflare" {
@@ -26,5 +26,5 @@ variable "cloudflare" {
     // record_key => record_content
     target_records = map(string)
   })
-  sensitive = true
+  sensitive = false
 }

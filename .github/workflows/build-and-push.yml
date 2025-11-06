@@ -88,7 +88,7 @@ jobs:
         run: |
           terraform apply -auto-approve \
             -var='cluster={
-              kubeconfig = "./kubeconfig",
+              kubeconfig = "./kube-config",
               deployment_tag = "$REGISTRY/$IMAGE_NAME:${{ steps.version.outputs.project_version }}"
             }' \
             -var='cloudflare={
