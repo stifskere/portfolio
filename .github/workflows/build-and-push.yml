@@ -61,7 +61,7 @@ jobs:
           terraform_version: 1.13.4
 
       - name: Setup Kubeconfig
-        working-directory: terraform
+        working-directory: infrastructure/prod/terraform
         run: |
           echo "${{ secrets.KUBECONFIG_CONTENT }}" > "./kube-config"
           chmod 600 "./kube-config"
