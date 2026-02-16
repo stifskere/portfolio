@@ -1,0 +1,47 @@
+# vim: set ts=2 sw=2 expandtab:
+
+name: portfolio_dev_env
+
+services:
+  portfolio:
+    container_name: portfolio
+    build:
+      context: ../../../
+      dockerfile: infrastructure/dev/docker/Dockerfile
+    environment:
+      # Compiler output.
+      CARGO_TARGET_DIR: infrastructure/dev/docker/.out/target
+      TRUNK_BUILD_DIST: infrastructure/dev/docker/.out/dist
+
+      # Migration variables
+      PF_DATABASE_URL: postgres://portfolio:portfolio@portfolio-database/portfolio
+      PF_MIGRATIONS_FLATDIR: infrastructure/dev/docker/.out/migrations
+      PF_AUTO_MIGRATE: "true"
+    ports:
+      - 8080:8080
+    volumes:
+      - ../../../:/home/dev/portfolio
+    depends_on:
+      portfolio-database:
+        condition: service_healthy
+
+  portfolio-database:
+    container_name: portfolio_database
+    image: postgres:18
+    environment:
+      POSTGRES_USER: portfolio
+      POSTGRES_PASSWORD: portfolio
+      POSTGRES_DB: portfolio
+      PGDATA: /data/postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - portfolio-database:/data/postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portfolio"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  portfolio-database:

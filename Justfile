@@ -4,10 +4,10 @@ just := `command -v just`
 
 # just dev
 #
-# Starts a dvelopment container.
+# Starts the development environment.
 #
-# Triggers `docker compose` to build and start a container, the definitions
-# are at `docker/dev.docker-compose.yml`.
+# Triggers `docker compose` to build and start the dev environment,
+# the definitions are at `docker/dev.docker-compose.yml`.
 @dev:
 	#!/bin/bash
 	set -e;
@@ -16,8 +16,17 @@ just := `command -v just`
 		[[ -f /.dockerenv ]] ||
 		grep -qE '(docker|containerd|kubepods)' /proc/1/cgroup 2>/dev/null;
 	then
-		cargo watch -x 'run -p backend' 2>&1 & :;
-		trunk serve --config Trunk.toml 2>&1 & :;
+		# This watches the migrations directory and re-runs migrations
+		# when edited. Only if $AUTO_MIGRATE is true.
+		${PF_AUTO_MIGRATE:=false}
+		if [ "$PF_AUTO_MIGRATE" = true ]; then
+			watchexec -w ./migrations -r -- {{just}} migrate &
+		fi
+
+		# This watches the backend and restarts the service when edited.
+		watchexec -w ./core/backend -r -- cargo run --bin backend &
+		# Trunk by itself already acts as a file watcher, see `Trunk.toml`
+		trunk serve --config Trunk.toml 2>&1 &
 		wait;
 	else
 		if !command -v docker >/dev/null 2>&1; then
@@ -25,7 +34,7 @@ just := `command -v just`
 			exit 1;
 		fi
 
-		docker compose -f ./docker/dev.docker-compose.yml up --no-deps --build;
+		docker compose -f ./infrastructure/dev/docker/docker-compose.yml up --no-deps --build;
 	fi
 
 
@@ -53,6 +62,7 @@ just := `command -v just`
 		echo "$image_name:$version";
 	fi
 
+
 # just info <key>
 #
 # Provides information about the project.
@@ -69,6 +79,8 @@ just := `command -v just`
 	#!/bin/bash
 	set -e;
 
+	# This function is meant to (for now) only get the version
+	# of all the crates in this project.
 	function version() {
 		local version=$(
 			cargo metadata --format-version 1 --no-deps \
@@ -95,15 +107,50 @@ just := `command -v just`
 	esac
 
 
-# PENDING TO MIGRATE.
-@migrate:
+# Migrates all database migration files into the database specified
+# by the `$PF_DATABASE_URL` environment variable.
+#
+# This process first flattens the migrations directory structure
+# into a single-level directory, then applies the migrations.
+#
+# The destination directory for the flattened migrations must be
+# provided via the `$PF_MIGRATIONS_FLATDIR` environment variable.
+@migrate directory="migrations" url="":
 	#!/bin/bash
 	set -e;
 
-	rm -f migrations/.__schema.sql;
-	cat migrations/*.sql > migrations/.__schema.sql;
+	# Check whether we can obtain a database URL from somewhere.
+	DATABASE_URL="{{url}}"
+	DATABASE_URL="${DATABASE_URL:-$PF_DATABASE_URL}"
+	if [[ -z "$DATABASE_URL" ]]; then
+		echo "Missing PF_DATABASE_URL or the url parameter.";
+		exit 1;
+	fi
+
+	# Check if there is a defined path where to flatten the migrations
+	# directory.
+	if [[ -z "$PF_MIGRATIONS_FLATDIR" ]]; then
+		echo "Missing PF_MIGRATIONS_FLATDIR variable, cannot migrate.";
+		exit 1;
+	fi
+
+	# Re-create the flattened migrations directory.
+	rm -rf --preserve-root $PF_MIGRATIONS_FLATDIR || true;
+	mkdir -p $PF_MIGRATIONS_FLATDIR;
+
+	# Copy all the files from {{directory}} inside $MIGRATIONS_FLATDIR
+	# deterministically.
+	find "{{directory}}" -type f -name "*.hcl" -print0 |
+	while IFS= read -r -d '' src; do
+		rel="${src#"{{directory}}/"}"
+		flat="${rel//\//_}"
+		hash=$(printf "%s" "$rel" | sha1sum | cut -c1-8)
+
+		cp "$src" "$PF_MIGRATIONS_FLATDIR/${hash}__${flat}"
+	done
+
+	# Apply the migrations with the anterior processed constraints.
 	atlas schema apply \
-		--to file://migrations/.__schema.sql \
-		-u "postgres://portfolio:portfolio@127.0.0.1/portfolio?sslmode=disable" \
-		--dev-url "docker://postgres/18/diffs";
-	rm migrations/.__schema.sql;
+		--to "file://$PF_MIGRATIONS_FLATDIR" \
+		-u "$DATABASE_URL?sslmode=disable" \
+		--auto-approve;
