@@ -9,13 +9,7 @@ port = 8080
 open = true
 
 [watch]
-ignore = [
-	"Cargo.lock",
-	"README.md",
-	".gitignore",
-	"target",
-	"core/backend/"
-]
+watch = ["core/frontend"]
 
 [[proxy]]
 rewrite = "/api"
