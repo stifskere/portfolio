@@ -74,7 +74,7 @@ jobs:
           echo "project_version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Terraform Init
-        working-directory: terraform
+        working-directory: infrastructure/prod/terraform
         run: |
           terraform init \
             -backend-config='endpoints={s3="${{ secrets.TF_BACKEND_S3_ENDPOINT }}"}' \
@@ -85,7 +85,7 @@ jobs:
             -backend-config="secret_key=${{ secrets.TF_BACKEND_S3_ACCESS_KEY_SECRET }}"
 
       - name: Terraform Apply
-        working-directory: terraform
+        working-directory: infrastructure/prod/terraform
         run: |
           terraform apply -auto-approve \
             -var="cluster={
