@@ -58,7 +58,7 @@ just := `command -v just`
 		image_name="${IMAGE_TAG:-portfolio}";
 		version="$({{just}} info version)";
 
-		docker build --build-arg BUILD_STAGE=true -t "$image_name:$version" -f ./docker/prod.dockerfile .;
+		docker build --build-arg BUILD_STAGE=true -t "$image_name:$version" -f ./infrastructure/prod/docker/dockerfile .;
 		echo "$image_name:$version";
 	fi
 
